@@ -1,165 +1,502 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tesla Valve Animation</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: #1a1a2e;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            color: white;
-        }
-
-        header {
-            padding: 20px 40px;
-            background: rgba(0, 0, 0, 0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        h1 {
-            font-size: 2em;
-            color: #00d9ff;
-        }
-
-        .back-link {
-            padding: 10px 20px;
-            background: rgba(0, 217, 255, 0.2);
-            color: #00d9ff;
-            text-decoration: none;
-            border-radius: 5px;
-            border: 1px solid #00d9ff;
-            transition: all 0.3s ease;
-        }
-
-        .back-link:hover {
-            background: #00d9ff;
-            color: #1a1a2e;
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .valve-container {
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .valve-svg {
-            width: 100%;
-            max-width: 600px;
-            height: 400px;
-            margin: 40px auto;
-            border: 2px solid #00d9ff;
-            border-radius: 10px;
-            background: rgba(0, 217, 255, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .placeholder {
-            font-size: 1.2em;
-            color: #00d9ff;
-            opacity: 0.6;
-        }
-
-        .description {
-            line-height: 1.8;
-            color: #b8b8d1;
-            margin-bottom: 30px;
-        }
-
-        .info-box {
-            background: rgba(0, 217, 255, 0.1);
-            border: 1px solid #00d9ff;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 30px;
-        }
-
-        .info-box h2 {
-            color: #00d9ff;
-            margin-bottom: 15px;
-        }
-
-        .info-box p {
-            color: #b8b8d1;
-            line-height: 1.6;
-        }
-
-        .flow-indicator {
-            width: 60px;
-            height: 60px;
-            margin: 20px auto;
-            border: 3px solid #00d9ff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tesla Valve of Code Quality</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a1a; overflow: hidden; }
+  canvas { display: block; }
+</style>
 </head>
 <body>
-    <header>
-        <h1>🌊 Tesla Valve Animation</h1>
-        <a href="../../index.html" class="back-link">← Back to Projects</a>
-    </header>
+<canvas id="c"></canvas>
+<script>
+'use strict';
 
-    <main>
-        <div class="valve-container">
-            <p class="description">
-                The Tesla valve, invented by Nikola Tesla in 1920, is a fixed-geometry passive check valve. 
-                It allows fluid to flow easily in one direction while significantly restricting flow in the reverse direction, 
-                all without any moving parts.
-            </p>
+// --- Colors ---
+const BG = '#0a0a1a';
+const RED = [233, 69, 96];
+const ORANGE = [255, 107, 53];
+const YELLOW = [255, 215, 0];
+const GREEN = [78, 204, 163];
+const CHANNEL_FILL = '#111128';
+const CHANNEL_STROKE = '#2a2a4a';
+const PIPE_FILL = '#0e0e22';
+const PIPE_STROKE = '#3a3a5a';
+const LABEL_COLOR = '#4ecca3';
+const TITLE_COLOR = '#8888aa';
 
-            <div class="valve-svg">
-                <p class="placeholder">Interactive animation coming soon...</p>
-            </div>
+// --- Layout ---
+const VALVE_X0 = 0.06;
+const VALVE_X1 = 0.94;
+const VALVE_Y = 0.54;
+const CHANNEL_H = 0.05;
 
-            <div class="flow-indicator"></div>
+const LOOP_CONFIGS = [
+  { frac: 0.12, above: true,  label: 'Spec & Context\nDriven Dev', qualityGain: 0.25, speedCost: 0.12 },
+  { frac: 0.30, above: false, label: 'Linting &\nFormatting', qualityGain: 0.30, speedCost: 0.15 },
+  { frac: 0.48, above: true,  label: 'Type Checking &\nStatic Analysis', qualityGain: 0.35, speedCost: 0.20 },
+  { frac: 0.66, above: false, label: 'Testing &\nContracts', qualityGain: 0.35, speedCost: 0.25 },
+  { frac: 0.84, above: true,  label: 'Integration &\nE2E Testing', qualityGain: 0.40, speedCost: 0.32 },
+];
 
-            <div class="info-box">
-                <h2>How It Works</h2>
-                <p>
-                    The valve uses a series of carefully designed loops and channels that create turbulence 
-                    when fluid attempts to flow backwards, while offering minimal resistance in the forward direction. 
-                    This elegant design makes it useful for applications requiring one-way flow without mechanical 
-                    components that could fail or require maintenance.
-                </p>
-            </div>
+// --- Canvas ---
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, valveLen, channelHPx, pipeW, valveX0Px, valveX1Px, valveYPx;
+let loopDefs = [];
+let staticCanvas = null;
 
-            <div class="info-box">
-                <h2>Applications</h2>
-                <p>
-                    Modern applications include microfluidics, cooling systems, and fuel delivery systems where 
-                    reliability and lack of moving parts are crucial. The valve's passive nature makes it ideal 
-                    for harsh environments or situations where maintenance is difficult.
-                </p>
-            </div>
-        </div>
-    </main>
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  valveX0Px = W * VALVE_X0;
+  valveX1Px = W * VALVE_X1;
+  valveLen = valveX1Px - valveX0Px;
+  valveYPx = H * VALVE_Y;
+  channelHPx = H * CHANNEL_H;
+  pipeW = channelHPx * 0.75;
+  buildLoopDefs();
+  renderStatic();
+}
+
+// --- Bezier utilities ---
+
+function cubicBezier(p0, p1, p2, p3, t) {
+  const u = 1 - t;
+  return [
+    u*u*u*p0[0] + 3*u*u*t*p1[0] + 3*u*t*t*p2[0] + t*t*t*p3[0],
+    u*u*u*p0[1] + 3*u*u*t*p1[1] + 3*u*t*t*p2[1] + t*t*t*p3[1]
+  ];
+}
+
+function samplePath(segments, n) {
+  const raw = [];
+  const perSeg = Math.ceil(n / segments.length);
+  for (const seg of segments) {
+    for (let i = 0; i <= perSeg; i++) {
+      raw.push(cubicBezier(seg[0], seg[1], seg[2], seg[3], i / perSeg));
+    }
+  }
+  const lens = [0];
+  for (let i = 1; i < raw.length; i++) {
+    const dx = raw[i][0] - raw[i-1][0], dy = raw[i][1] - raw[i-1][1];
+    lens.push(lens[i-1] + Math.sqrt(dx*dx + dy*dy));
+  }
+  const totalLen = lens[lens.length - 1];
+  const samples = [];
+  let j = 0;
+  for (let i = 0; i < n; i++) {
+    const target = (i / (n - 1)) * totalLen;
+    while (j < lens.length - 2 && lens[j+1] < target) j++;
+    const segL = lens[j+1] - lens[j];
+    const f = segL > 0 ? (target - lens[j]) / segL : 0;
+    samples.push([
+      raw[j][0] + f * (raw[j+1][0] - raw[j][0]),
+      raw[j][1] + f * (raw[j+1][1] - raw[j][1])
+    ]);
+  }
+  return { samples, totalLen };
+}
+
+// --- Loop definitions with back-pressure paths ---
+
+function buildLoopDefs() {
+  loopDefs = [];
+  const loopW = valveLen * 0.08;
+  const loopH = H * 0.25;
+  const backpressure = valveLen * 0.035; // how far upstream particles get pushed
+
+  for (const cfg of LOOP_CONFIGS) {
+    const cx = valveX0Px + cfg.frac * valveLen;
+    const dir = cfg.above ? -1 : 1; // -1 = above, +1 = below
+    const channelEdgeY = valveYPx + dir * (channelHPx / 2);
+    const peakY = valveYPx + dir * (channelHPx / 2 + loopH);
+
+    // Entry point: on channel edge, at the junction
+    const entryX = cx;
+    // Back-pressure target: upstream of entry
+    const bpX = cx - backpressure;
+    // Exit point: downstream of entry
+    const exitX = cx + loopW * 0.8;
+
+    // Path with back-pressure:
+    // Seg 1: entry -> upstream (back-pressure) while lifting off channel
+    const s1p0 = [entryX, channelEdgeY];
+    const s1p1 = [entryX - backpressure * 0.3, channelEdgeY];
+    const s1p2 = [bpX, channelEdgeY + dir * loopH * 0.15];
+    const s1p3 = [bpX, channelEdgeY + dir * loopH * 0.35];
+
+    // Seg 2: upstream point -> arc to peak
+    const s2p0 = [bpX, channelEdgeY + dir * loopH * 0.35];
+    const s2p1 = [bpX - loopW * 0.3, channelEdgeY + dir * loopH * 0.8];
+    const s2p2 = [cx - loopW * 0.1, peakY + dir * loopH * 0.05];
+    const s2p3 = [cx + loopW * 0.15, peakY];
+
+    // Seg 3: peak -> back downstream toward exit
+    const s3p0 = [cx + loopW * 0.15, peakY];
+    const s3p1 = [cx + loopW * 0.5, peakY + dir * loopH * 0.05];
+    const s3p2 = [exitX + loopW * 0.3, channelEdgeY + dir * loopH * 0.6];
+    const s3p3 = [exitX, channelEdgeY + dir * loopH * 0.2];
+
+    // Seg 4: approach -> rejoin channel
+    const s4p0 = [exitX, channelEdgeY + dir * loopH * 0.2];
+    const s4p1 = [exitX, channelEdgeY + dir * loopH * 0.05];
+    const s4p2 = [exitX + backpressure * 0.2, channelEdgeY];
+    const s4p3 = [exitX, channelEdgeY];
+
+    const segs = [
+      [s1p0, s1p1, s1p2, s1p3],
+      [s2p0, s2p1, s2p2, s2p3],
+      [s3p0, s3p1, s3p2, s3p3],
+      [s4p0, s4p1, s4p2, s4p3],
+    ];
+
+    const pathData = samplePath(segs, 300);
+
+    loopDefs.push({
+      cx, entryX, exitX, peakY, channelEdgeY, dir,
+      bezierSegs: segs,
+      path: pathData,
+      label: cfg.label,
+      qualityGain: cfg.qualityGain,
+      speedCost: cfg.speedCost,
+      above: cfg.above,
+    });
+  }
+}
+
+// --- Draw a thick pipe along bezier segments ---
+
+function drawPipe(sc, segs, width, fillStyle, strokeStyle) {
+  // Draw thick filled+stroked path following bezier segments
+  sc.lineWidth = width;
+  sc.lineCap = 'round';
+  sc.lineJoin = 'round';
+
+  // Fill (thick line = pipe interior)
+  sc.strokeStyle = fillStyle;
+  sc.beginPath();
+  sc.moveTo(segs[0][0][0], segs[0][0][1]);
+  for (const seg of segs) {
+    sc.bezierCurveTo(seg[1][0], seg[1][1], seg[2][0], seg[2][1], seg[3][0], seg[3][1]);
+  }
+  sc.stroke();
+
+  // Border (slightly wider, drawn under)
+  // We draw border as two thinner lines on edges by overdrawing
+  sc.lineWidth = width + 2;
+  sc.strokeStyle = strokeStyle;
+  sc.beginPath();
+  sc.moveTo(segs[0][0][0], segs[0][0][1]);
+  for (const seg of segs) {
+    sc.bezierCurveTo(seg[1][0], seg[1][1], seg[2][0], seg[2][1], seg[3][0], seg[3][1]);
+  }
+  sc.stroke();
+
+  // Redraw interior on top
+  sc.lineWidth = width - 2;
+  sc.strokeStyle = fillStyle;
+  sc.beginPath();
+  sc.moveTo(segs[0][0][0], segs[0][0][1]);
+  for (const seg of segs) {
+    sc.bezierCurveTo(seg[1][0], seg[1][1], seg[2][0], seg[2][1], seg[3][0], seg[3][1]);
+  }
+  sc.stroke();
+}
+
+// --- Static geometry (cached) ---
+
+function renderStatic() {
+  staticCanvas = document.createElement('canvas');
+  staticCanvas.width = W;
+  staticCanvas.height = H;
+  const sc = staticCanvas.getContext('2d');
+
+  sc.fillStyle = BG;
+  sc.fillRect(0, 0, W, H);
+
+  // Title
+  sc.fillStyle = TITLE_COLOR;
+  sc.font = `bold ${Math.max(28, H * 0.052)}px system-ui, sans-serif`;
+  sc.textAlign = 'center';
+  sc.fillText('Tesla Valve of Code Quality', W / 2, H * 0.07);
+
+  sc.font = `${Math.max(22, H * 0.032)}px system-ui, sans-serif`;
+  sc.fillStyle = '#555566';
+  sc.fillText('Bad code gets caught in feedback loops \u2014 good code flows straight through', W / 2, H * 0.07 + H * 0.05);
+
+  // Draw loop pipes FIRST (behind channel)
+  for (const loop of loopDefs) {
+    drawPipe(sc, loop.bezierSegs, pipeW, PIPE_FILL, PIPE_STROKE);
+
+    // Junction dots
+    sc.fillStyle = '#4ecca340';
+    sc.beginPath();
+    sc.arc(loop.entryX, loop.channelEdgeY, 4, 0, Math.PI * 2);
+    sc.fill();
+    sc.beginPath();
+    sc.arc(loop.exitX, loop.channelEdgeY, 4, 0, Math.PI * 2);
+    sc.fill();
+
+    // Label
+    sc.fillStyle = LABEL_COLOR;
+    sc.font = `bold ${Math.max(18, H * 0.028)}px system-ui, sans-serif`;
+    sc.textAlign = 'center';
+    const lines = loop.label.split('\n');
+    const labelOffset = loop.above ? -H * 0.04 : H * 0.04;
+    const labelY = loop.peakY + labelOffset;
+    for (let li = 0; li < lines.length; li++) {
+      const ly = loop.above
+        ? labelY - (lines.length - 1 - li) * H * 0.035
+        : labelY + li * H * 0.035;
+      sc.fillText(lines[li], loop.cx + valveLen * 0.01, ly);
+    }
+  }
+
+  // Main channel — fill interior, then draw walls with gaps at junctions
+  const chTop = valveYPx - channelHPx / 2;
+  const chBot = valveYPx + channelHPx / 2;
+  const gapPad = pipeW * 0.6; // extra gap width so pipe fits through
+
+  // Interior fill
+  sc.fillStyle = CHANNEL_FILL;
+  sc.fillRect(valveX0Px, chTop, valveLen, channelHPx);
+
+  // Collect gap ranges per wall
+  const topGaps = []; // [{x0, x1}]
+  const botGaps = [];
+  for (const loop of loopDefs) {
+    const gapX0 = Math.min(loop.entryX, loop.exitX) - gapPad;
+    const gapX1 = Math.max(loop.entryX, loop.exitX) + gapPad;
+    if (loop.above) topGaps.push({ x0: gapX0, x1: gapX1 });
+    else botGaps.push({ x0: gapX0, x1: gapX1 });
+  }
+
+  // Draw a wall line with gaps
+  function drawWallWithGaps(y, gaps) {
+    // Sort gaps by x0
+    const sorted = gaps.slice().sort((a, b) => a.x0 - b.x0);
+    sc.strokeStyle = CHANNEL_STROKE;
+    sc.lineWidth = 2;
+    sc.lineCap = 'round';
+    let cx = valveX0Px;
+    for (const gap of sorted) {
+      if (gap.x0 > cx) {
+        sc.beginPath();
+        sc.moveTo(cx, y);
+        sc.lineTo(gap.x0, y);
+        sc.stroke();
+      }
+      cx = Math.max(cx, gap.x1);
+    }
+    if (cx < valveX1Px) {
+      sc.beginPath();
+      sc.moveTo(cx, y);
+      sc.lineTo(valveX1Px, y);
+      sc.stroke();
+    }
+  }
+
+  drawWallWithGaps(chTop, topGaps);
+  drawWallWithGaps(chBot, botGaps);
+
+  // Flow arrows
+  sc.strokeStyle = '#1a1a3a';
+  sc.lineWidth = 1;
+  const arrowN = 25;
+  const arrowSpacing = valveLen / arrowN;
+  for (let i = 1; i < arrowN; i++) {
+    const ax = valveX0Px + i * arrowSpacing;
+    sc.beginPath();
+    sc.moveTo(ax - 4, valveYPx - 3);
+    sc.lineTo(ax + 4, valveYPx);
+    sc.lineTo(ax - 4, valveYPx + 3);
+    sc.stroke();
+  }
+
+  // Input / Output labels
+  sc.fillStyle = '#667788';
+  sc.font = `${Math.max(22, H * 0.032)}px system-ui, sans-serif`;
+  sc.textAlign = 'right';
+  sc.fillText('Input', valveX0Px - 14, valveYPx + 7);
+  sc.textAlign = 'left';
+  sc.fillText('Output', valveX1Px + 14, valveYPx + 7);
+
+  // Legend
+  sc.textAlign = 'center';
+  sc.font = `${Math.max(20, H * 0.028)}px system-ui, sans-serif`;
+  const legendY = H * 0.94;
+
+  sc.fillStyle = `rgb(${RED.join(',')})`;
+  sc.beginPath(); sc.arc(W * 0.35, legendY, 7, 0, Math.PI * 2); sc.fill();
+  sc.fillStyle = '#667788';
+  sc.textAlign = 'left';
+  sc.fillText('Bad code / data', W * 0.35 + 16, legendY + 7);
+
+  sc.fillStyle = `rgb(${GREEN.join(',')})`;
+  sc.beginPath(); sc.arc(W * 0.55, legendY, 7, 0, Math.PI * 2); sc.fill();
+  sc.fillStyle = '#667788';
+  sc.textAlign = 'left';
+  sc.fillText('Good code / data', W * 0.55 + 16, legendY + 7);
+}
+
+// --- Particles ---
+
+const MAX_PARTICLES = 300;
+const SPAWN_RATE = 0.10;
+const BASE_SPEED = 0.9; // 50% of original 1.8
+
+class Particle {
+  constructor() {
+    this.quality = Math.random() < 0.6 ? 0.85 + Math.random() * 0.15 : Math.random() * 0.35;
+    this.x = valveX0Px;
+    this.y = valveYPx + (Math.random() - 0.5) * channelHPx * 0.5;
+    this.active = true;
+    this.inLoop = -1;
+    this.loopT = 0;
+    this.passedJunctions = new Set();
+    this.mainProgress = 0;
+    this.speed = BASE_SPEED * (0.85 + Math.random() * 0.3) * (valveLen / 800);
+    this.jitterPhase = Math.random() * Math.PI * 2;
+    this.size = 4 + Math.random() * 3;
+  }
+
+  qualityColor() {
+    const q = Math.max(0, Math.min(1, this.quality));
+    let r, g, b;
+    if (q < 0.33) {
+      const t = q / 0.33;
+      r = RED[0] + (ORANGE[0] - RED[0]) * t;
+      g = RED[1] + (ORANGE[1] - RED[1]) * t;
+      b = RED[2] + (ORANGE[2] - RED[2]) * t;
+    } else if (q < 0.66) {
+      const t = (q - 0.33) / 0.33;
+      r = ORANGE[0] + (YELLOW[0] - ORANGE[0]) * t;
+      g = ORANGE[1] + (YELLOW[1] - ORANGE[1]) * t;
+      b = ORANGE[2] + (YELLOW[2] - ORANGE[2]) * t;
+    } else {
+      const t = (q - 0.66) / 0.34;
+      r = YELLOW[0] + (GREEN[0] - YELLOW[0]) * t;
+      g = YELLOW[1] + (GREEN[1] - YELLOW[1]) * t;
+      b = YELLOW[2] + (GREEN[2] - YELLOW[2]) * t;
+    }
+    return [Math.round(r), Math.round(g), Math.round(b)];
+  }
+
+  update() {
+    if (!this.active) return;
+
+    if (this.inLoop >= 0) {
+      const loop = loopDefs[this.inLoop];
+      const loopSpeed = this.speed / loop.path.totalLen;
+      this.loopT += loopSpeed;
+      this.quality += loop.qualityGain * loopSpeed;
+
+      if (this.loopT >= 1) {
+        this.x = loop.exitX;
+        this.y = loop.channelEdgeY;
+        this.mainProgress = (loop.exitX - valveX0Px) / valveLen;
+        this.speed *= (1 - loop.speedCost); // feedback loop slows the pipeline
+        this.inLoop = -1;
+        this.loopT = 0;
+      } else {
+        const idx = Math.min(
+          Math.floor(this.loopT * (loop.path.samples.length - 1)),
+          loop.path.samples.length - 1
+        );
+        const pt = loop.path.samples[idx];
+        this.x = pt[0];
+        this.y = pt[1];
+      }
+    } else {
+      this.mainProgress += this.speed / valveLen;
+      this.x = valveX0Px + this.mainProgress * valveLen;
+
+      const jitter = Math.sin(this.jitterPhase + this.mainProgress * 25) * channelHPx * 0.18;
+      this.y = valveYPx + jitter;
+
+      // Check junctions
+      for (let i = 0; i < loopDefs.length; i++) {
+        if (this.passedJunctions.has(i)) continue;
+        const loop = loopDefs[i];
+        const jp = (loop.entryX - valveX0Px) / valveLen;
+
+        if (this.mainProgress >= jp - 0.005 && this.mainProgress <= jp + 0.015) {
+          this.passedJunctions.add(i);
+          const divProb = (1 - this.quality) * 0.80 + 0.05;
+          if (Math.random() < divProb) {
+            this.inLoop = i;
+            this.loopT = 0;
+            this.x = loop.entryX;
+            this.y = loop.channelEdgeY;
+            break;
+          } else {
+            // Even passing through costs a little speed (valve drag)
+            this.speed *= (1 - loop.speedCost * 0.3);
+          }
+        }
+      }
+
+      if (this.mainProgress >= 1) {
+        this.active = false;
+      }
+    }
+
+    this.quality = Math.max(0, Math.min(1, this.quality));
+  }
+
+  draw(ctx) {
+    if (!this.active) return;
+
+    const [r, g, b] = this.qualityColor();
+
+    // Glow
+    const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3);
+    grad.addColorStop(0, `rgba(${r},${g},${b},0.35)`);
+    grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Core
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// --- Main loop ---
+
+let particles = [];
+let spawnAccum = 0;
+
+function frame() {
+  // Spawn continuously
+  spawnAccum += SPAWN_RATE;
+  while (spawnAccum >= 1) {
+    if (particles.length < MAX_PARTICLES) {
+      particles.push(new Particle());
+    }
+    spawnAccum -= 1;
+  }
+
+  for (const p of particles) p.update();
+  particles = particles.filter(p => p.active);
+
+  ctx.drawImage(staticCanvas, 0, 0);
+  for (const p of particles) p.draw(ctx);
+
+  requestAnimationFrame(frame);
+}
+
+window.addEventListener('resize', resize);
+resize();
+requestAnimationFrame(frame);
+</script>
 </body>
 </html>
