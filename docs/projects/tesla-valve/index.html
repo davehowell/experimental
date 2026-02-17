@@ -317,13 +317,13 @@ function renderStatic() {
     sc.stroke();
   }
 
-  // Input / Output labels
+  // Input / Output labels (below pipe ends to avoid clipping)
   sc.fillStyle = '#667788';
   sc.font = `${Math.max(22, H * 0.032)}px system-ui, sans-serif`;
-  sc.textAlign = 'right';
-  sc.fillText('Input', valveX0Px - 14, valveYPx + 7);
   sc.textAlign = 'left';
-  sc.fillText('Output', valveX1Px + 14, valveYPx + 7);
+  sc.fillText('Input', valveX0Px, valveYPx + channelHPx / 2 + H * 0.04);
+  sc.textAlign = 'right';
+  sc.fillText('Output', valveX1Px, valveYPx + channelHPx / 2 + H * 0.04);
 
   // Legend
   sc.textAlign = 'center';
