@@ -1,164 +1,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experimental Projects</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXPERIMENTAL</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
+  :root {
+    --neon-pink: #ff2a6d;
+    --neon-cyan: #05d9e8;
+    --neon-blue: #005678;
+    --neon-purple: #d300c5;
+    --neon-yellow: #f5e642;
+    --dark-bg: #0a0a12;
+    --dark-surface: #0d0d1a;
+    --grid-color: #1a1a3a;
+  }
 
-        header {
-            text-align: center;
-            margin-bottom: 50px;
-            padding-bottom: 30px;
-            border-bottom: 2px solid #667eea;
-        }
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--dark-bg);
+    color: #c0c0d0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-        h1 {
-            font-size: 3em;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
+  /* --- Perspective grid floor --- */
+  .grid-floor {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45vh;
+    background:
+      linear-gradient(transparent 0%, var(--dark-bg) 100%),
+      repeating-linear-gradient(
+        90deg,
+        var(--grid-color) 0px,
+        transparent 1px,
+        transparent 60px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        var(--grid-color) 0px,
+        transparent 1px,
+        transparent 40px
+      );
+    transform: perspective(400px) rotateX(45deg);
+    transform-origin: bottom center;
+    z-index: 0;
+    opacity: 0.5;
+  }
 
-        .subtitle {
-            font-size: 1.2em;
-            color: #666;
-        }
+  /* --- Scanlines overlay --- */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.08) 2px,
+      rgba(0, 0, 0, 0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
 
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
+  /* --- Stars --- */
+  canvas#stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
 
-        .project-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 2px solid #f0f0f0;
-        }
+  /* --- Main content --- */
+  .content {
+    position: relative;
+    z-index: 10;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
 
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
-            border-color: #667eea;
-        }
+  /* --- Header --- */
+  header {
+    text-align: center;
+    margin-bottom: 70px;
+  }
 
-        .project-card h2 {
-            color: #764ba2;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-        }
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow:
+      0 0 10px var(--neon-cyan),
+      0 0 30px var(--neon-cyan),
+      0 0 60px var(--neon-blue),
+      0 0 100px var(--neon-blue);
+    margin-bottom: 16px;
+  }
 
-        .project-card p {
-            color: #666;
-            margin-bottom: 20px;
-        }
+  .tagline {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: var(--neon-pink);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-shadow: 0 0 15px var(--neon-pink);
+    opacity: 0.9;
+  }
 
-        .project-card a {
-            display: inline-block;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: opacity 0.3s ease;
-        }
+  .divider {
+    width: 200px;
+    height: 2px;
+    margin: 30px auto 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--neon-cyan),
+      var(--neon-pink),
+      var(--neon-cyan),
+      transparent
+    );
+    box-shadow: 0 0 12px var(--neon-cyan);
+  }
 
-        .project-card a:hover {
-            opacity: 0.8;
-        }
+  /* --- Projects grid --- */
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 60px;
+  }
 
-        .project-card.coming-soon {
-            opacity: 0.6;
-        }
+  .card {
+    position: relative;
+    background: var(--dark-surface);
+    border: 1px solid var(--grid-color);
+    border-radius: 4px;
+    padding: 28px 24px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
 
-        .project-card.coming-soon a {
-            background: #ccc;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 4px;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
-        footer {
-            text-align: center;
-            margin-top: 50px;
-            padding-top: 30px;
-            border-top: 2px solid #667eea;
-            color: #666;
-        }
+  .card:hover::before {
+    opacity: 1;
+  }
 
-        .github-link {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: bold;
-        }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 0 20px rgba(5, 217, 232, 0.15),
+      0 0 40px rgba(255, 42, 109, 0.1);
+    border-color: transparent;
+  }
 
-        .github-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+  .card-index {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    color: var(--neon-cyan);
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+
+  .card h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .card p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #7a7a9a;
+    margin-bottom: 16px;
+  }
+
+  .card-status {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  .card-status.live {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 8px var(--neon-cyan);
+  }
+
+  .card-status.live::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 6px var(--neon-cyan);
+    margin-right: 8px;
+    vertical-align: middle;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* --- Footer --- */
+  footer {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid var(--grid-color);
+  }
+
+  footer a {
+    color: var(--neon-pink);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    transition: text-shadow 0.3s;
+  }
+
+  footer a:hover {
+    text-shadow: 0 0 12px var(--neon-pink);
+  }
+
+  footer a svg {
+    width: 16px;
+    height: 16px;
+    vertical-align: -2px;
+    margin-right: 6px;
+    fill: var(--neon-pink);
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🧪 Experimental Projects</h1>
-            <p class="subtitle">A collection of web apps, animations, and interactive experiments</p>
-        </header>
 
-        <div class="projects-grid">
-            <div class="project-card">
-                <h2>🌊 Tesla Valve Animation</h2>
-                <p>An interactive visualization of how Tesla valves work, demonstrating fluid dynamics and one-way flow behavior.</p>
-                <a href="projects/tesla-valve/index.html">View Project →</a>
-            </div>
+<canvas id="stars"></canvas>
+<div class="grid-floor"></div>
+<div class="scanlines"></div>
 
-            <div class="project-card coming-soon">
-                <h2>📊 Data Visualization</h2>
-                <p>Interactive charts and graphs showcasing various data visualization techniques and libraries.</p>
-                <a href="#">Coming Soon</a>
-            </div>
+<div class="content">
+  <header>
+    <h1>Experimental</h1>
+    <p class="tagline">Interactive visualisations &amp; prototypes</p>
+    <div class="divider"></div>
+  </header>
 
-            <div class="project-card coming-soon">
-                <h2>🎨 Creative Animations</h2>
-                <p>A showcase of creative CSS and JavaScript animations exploring motion and interaction design.</p>
-                <a href="#">Coming Soon</a>
-            </div>
+  <div class="projects">
+    <a class="card" href="projects/tesla-valve/index.html">
+      <div class="card-index">001</div>
+      <h2>Tesla Valve of Code Quality</h2>
+      <p>Particles flow through a Tesla valve where feedback loops catch bad code and gradually improve it. A visual metaphor for CI/CD pipelines.</p>
+      <span class="card-status live">Online</span>
+    </a>
+  </div>
 
-            <div class="project-card coming-soon">
-                <h2>🎮 Interactive Demos</h2>
-                <p>Experimental web-based interactive demos and mini-games built with modern web technologies.</p>
-                <a href="#">Coming Soon</a>
-            </div>
-        </div>
+  <footer>
+    <a href="https://github.com/davehowell/experimental">
+      <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      View source on GitHub
+    </a>
+  </footer>
+</div>
 
-        <footer>
-            <p>View the source code on <a href="https://github.com/davehowell/experimental" class="github-link">GitHub</a></p>
-        </footer>
-    </div>
+<script>
+// Starfield
+const c = document.getElementById('stars');
+const ctx = c.getContext('2d');
+let stars = [];
+
+function resize() {
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
+  initStars();
+}
+
+function initStars() {
+  stars = [];
+  const count = Math.floor((c.width * c.height) / 3000);
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * c.width,
+      y: Math.random() * c.height * 0.7,
+      r: Math.random() * 1.2 + 0.3,
+      a: Math.random(),
+      speed: Math.random() * 0.005 + 0.002,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function drawStars(t) {
+  ctx.clearRect(0, 0, c.width, c.height);
+  for (const s of stars) {
+    const flicker = 0.5 + 0.5 * Math.sin(t * s.speed * 6 + s.phase);
+    const alpha = s.a * 0.3 + flicker * 0.4;
+    ctx.fillStyle = `rgba(200, 210, 255, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  requestAnimationFrame(drawStars);
+}
+
+window.addEventListener('resize', resize);
+resize();
+requestAnimationFrame(drawStars);
+</script>
+
 </body>
 </html>
