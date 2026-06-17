@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#11BDBD" />
+  <title>Roam Sweet Roam</title>
+  <meta name="description" content="Plan your Saturday open-homes. Routes the whole market — coffee, playground and lunch built in." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Branded backdrop (visible behind the phone on desktop / projector) -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop-blob b1"></div>
+    <div class="backdrop-blob b2"></div>
+    <div class="backdrop-brand">
+      <span class="bd-logo">Roam&nbsp;Sweet&nbsp;Roam</span>
+      <span class="bd-tag">a NurtureCloud curiosity · Gear Up 2026</span>
+    </div>
+  </div>
+
+  <!-- The phone -->
+  <div class="device" id="device">
+    <div class="device-notch" aria-hidden="true"></div>
+    <div class="statusbar" aria-hidden="true">
+      <span class="sb-time">9:41</span>
+      <span class="sb-icons">●●● &nbsp;📶 &nbsp;🔋</span>
+    </div>
+    <main id="screen" class="screen" aria-live="polite"></main>
+    <nav class="navbar" id="navbar" aria-hidden="false">
+      <button class="nav-btn" id="navBack" aria-label="Back">‹</button>
+      <div class="dots" id="dots"></div>
+      <button class="nav-btn" id="navNext" aria-label="Next">›</button>
+    </nav>
+  </div>
+
+  <div class="hint" id="hint">Tap the button — or press → to advance</div>
+
+  <script src="assets/vendor/leaflet/leaflet.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
