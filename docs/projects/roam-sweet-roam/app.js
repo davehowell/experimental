@@ -92,20 +92,21 @@
         <p class="splash-tag">${esc(D.copy.splashTagline)}</p>
         <div class="pwwrap">
           ${auto ? "" : `<input class="pw" id="pw" type="text" inputmode="text"
-              autocapitalize="none" placeholder="Enter access code" />
-            <div class="pw-note">Gear Up preview · code shared on the day</div>`}
+              autocapitalize="none" placeholder="Enter access code" />`}
+          <button class="cta inline ghost" id="splashGo">Plan your Saturday →</button>
+          ${auto ? "" : `<div class="pw-note">Gear Up preview · code shared on the day</div>`}
         </div>
         <div class="byline">Plan the day · roam the market · home sweet roam</div>
       </div>`;
-    const cta = ctaButton(auto ? "Plan your Saturday →" : "Plan your Saturday →", () => {
+    const cta = document.getElementById("splashGo");
+    cta.onclick = () => {
       if (!state.unlocked) {
         const v = (document.getElementById("pw").value || "").trim().toLowerCase();
         if (v !== A.password) { shake(document.getElementById("pw")); return; }
         state.unlocked = true;
       }
       gotoName("consent");
-    });
-    screen.querySelector(".splash").appendChild(cta);
+    };
     const pw = document.getElementById("pw");
     if (pw) pw.addEventListener("keydown", (e) => { if (e.key === "Enter") cta.click(); });
   }
