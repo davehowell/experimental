@@ -398,8 +398,11 @@
   }
   function appleMapsUrl() {
     const items = activeItinerary();
-    const o0 = byId(items[0].refId), o1 = byId(items[1].refId);
-    return `https://maps.apple.com/?saddr=${o0.lat},${o0.lng}&daddr=${o1.lat},${o1.lng}&dirflg=d`;
+    const pts = items.map((l) => { const o = byId(l.refId); return `${o.lat},${o.lng}`; });
+    // Apple Maps multi-stop: daddr chains stops with "+to:" (iOS 16+).
+    const saddr = pts[0];
+    const daddr = pts.slice(1).join("+to:");
+    return `https://maps.apple.com/?saddr=${saddr}&daddr=${daddr}&dirflg=d`;
   }
 
   /* ---- arriving / geofence ---- */
