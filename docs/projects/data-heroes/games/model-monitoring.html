@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Monitoring — Data Heroes</title>
+<link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script src="../shared/shared.js"></script>
+<script src="../shared/game-shell.js"></script>
+<script src="model-monitoring.js"></script>
+<script>
+  new GameShell(window.DataHeroesGame, {
+    id: 'model-monitoring',
+    phase: 'MODEL MONITORING',
+    accent: [251, 86, 7],
+    lives: 3,
+    matrixRain: false,
+    controls: 'MOUSE aim · CLICK intercept · SPACE system reset',
+    victoryTitle: 'OUTAGE CONTAINED',
+    gameOverTitle: 'PRODUCTION DOWN',
+  }).start();
+</script>
+</body>
+</html>
