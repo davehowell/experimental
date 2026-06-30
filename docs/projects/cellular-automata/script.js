@@ -4,7 +4,11 @@
     green:  { bg: "#001100", cell: "#00ff00", ui: "#00cc00" },
     orange: { bg: "#110800", cell: "#ff8800", ui: "#cc6600" },
     white:  { bg: "#000000", cell: "#ffffff", ui: "#cccccc" },
-    amber:  { bg: "#0f0a00", cell: "#ffaa00", ui: "#cc8800" }
+    amber:  { bg: "#0f0a00", cell: "#ffaa00", ui: "#cc8800" },
+    pink:   { bg: "#1a0014", cell: "#ff2a6d", ui: "#b81e4e" },
+    cyan:   { bg: "#001417", cell: "#05d9e8", ui: "#048c96" },
+    blue:   { bg: "#00081a", cell: "#3d8bff", ui: "#2456a6" },
+    purple: { bg: "#14001a", cell: "#c724ff", ui: "#8016a6" }
   };
   var patterns = {
     single:  { name: "SINGLE CELL", cells: [[0,0]] },
