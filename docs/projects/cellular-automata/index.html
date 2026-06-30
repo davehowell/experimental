@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cellular Automata Simulator</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div id="canvas-wrap"><canvas id="canvas"></canvas></div>
+  <div id="controls">
+    <div class="ctrl-head">
+      <h1>CELLULAR AUTOMATA</h1>
+      <button class="toggle-btn" id="toggle" style="width:auto;padding:4px 12px;font-size:12px;">&#9660;</button>
+    </div>
+    <div class="control-body">
+      <div class="row">
+        <div class="stat">GEN: <span id="gen">0</span></div>
+        <div class="stat">STATUS: <span id="status">PAUSED</span></div>
+      </div>
+      <div class="row grid2">
+        <button id="play">PLAY</button>
+        <button id="step">STEP</button>
+        <button id="clear">CLEAR</button>
+        <button id="random">RANDOM</button>
+      </div>
+      <div class="row">
+        <label>SPEED: <span id="speedval">100</span>ms</label>
+        <input type="range" id="speed" min="10" max="500" value="100">
+      </div>
+      <div class="row">
+        <label>CELL SIZE: <span id="sizeval">6</span>px</label>
+        <input type="range" id="size" min="3" max="12" value="6">
+      </div>
+      <div class="row">
+        <label>DRAW MODE:</label>
+        <select id="pattern"></select>
+      </div>
+      <div class="row">
+        <label>RULE:</label>
+        <select id="rule">
+          <option value="life">CONWAY'S LIFE</option>
+          <option value="brian">BRIAN'S BRAIN</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>THEME:</label>
+        <select id="theme">
+          <option value="green">GREEN</option>
+          <option value="orange">ORANGE</option>
+          <option value="white">WHITE</option>
+          <option value="amber">AMBER</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>QUICK PLACE:</label>
+        <div class="grid2">
+          <button id="qglider">GLIDER</button>
+          <button id="qpulsar">PULSAR</button>
+        </div>
+      </div>
+      <div class="hint">
+        TOUCH TO PLACE: <span id="modename">SINGLE CELL</span><br>
+        GRID: <span id="griddim">0 &times; 0</span>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
