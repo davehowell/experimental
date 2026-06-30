@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feature Engineering — Data Heroes</title>
+<link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script src="../shared/shared.js"></script>
+<script src="../shared/game-shell.js"></script>
+<script src="feature-engineering.js"></script>
+<script>
+  new GameShell(window.DataHeroesGame, {
+    id: 'feature-engineering',
+    phase: 'FEATURE ENGINEERING',
+    accent: [157, 78, 221],
+    showLives: false,
+    matrixRain: false,
+    controls: '← → move · ↑ rotate · ↓ soft · SPACE drop',
+    victoryTitle: 'FEATURES ENGINEERED',
+    gameOverTitle: 'PIPELINE OVERFLOW',
+  }).start();
+</script>
+</body>
+</html>

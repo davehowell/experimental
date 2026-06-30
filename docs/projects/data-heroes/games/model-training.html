@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Training — Data Heroes</title>
+<link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script src="../shared/shared.js"></script>
+<script src="../shared/game-shell.js"></script>
+<script src="model-training.js"></script>
+<script>
+  new GameShell(window.DataHeroesGame, {
+    id: 'model-training',
+    phase: 'MODEL TRAINING',
+    accent: [0, 150, 199],
+    lives: 3,
+    matrixRain: false,
+    controls: '← → move · SPACE fire · shoot the optimizer',
+    victoryTitle: 'MODEL CONVERGED',
+    gameOverTitle: 'TRAINING DIVERGED',
+  }).start();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Cleaning — Data Heroes</title>
+<link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script src="../shared/shared.js"></script>
+<script src="../shared/game-shell.js"></script>
+<script src="data-cleaning.js"></script>
+<script>
+  new GameShell(window.DataHeroesGame, {
+    id: 'data-cleaning',
+    phase: 'DATA CLEANING',
+    accent: [0, 255, 65],
+    lives: 3,
+    controls: 'ARROWS thrust/turn · SPACE fire SQL',
+    victoryTitle: 'DATA MATRIX CLEANED',
+    gameOverTitle: 'DATA CORRUPTION CRITICAL',
+  }).start();
+</script>
+</body>
+</html>

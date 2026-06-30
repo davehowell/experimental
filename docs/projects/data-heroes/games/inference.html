@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inference — Data Heroes</title>
+<link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script src="../shared/shared.js"></script>
+<script src="../shared/game-shell.js"></script>
+<script src="inference.js"></script>
+<script>
+  new GameShell(window.DataHeroesGame, {
+    id: 'inference',
+    phase: 'INFERENCE',
+    accent: [255, 133, 0],
+    lives: 3,
+    matrixRain: false,
+    controls: '↑ ↓ change lane · SPACE serve request',
+    victoryTitle: 'SLA MET',
+    gameOverTitle: 'SLA BREACHED',
+  }).start();
+</script>
+</body>
+</html>

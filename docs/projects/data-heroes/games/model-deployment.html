@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Deployment — Data Heroes</title>
+<link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script src="../shared/shared.js"></script>
+<script src="../shared/game-shell.js"></script>
+<script src="model-deployment.js"></script>
+<script>
+  new GameShell(window.DataHeroesGame, {
+    id: 'model-deployment',
+    phase: 'MODEL DEPLOYMENT',
+    accent: [255, 0, 110],
+    lives: 3,
+    matrixRain: false,
+    controls: '↑ thrust · ← → steer · land soft on PROD',
+    victoryTitle: 'ROLLOUT SUCCESSFUL',
+    gameOverTitle: 'PROD CRASHED',
+  }).start();
+</script>
+</body>
+</html>
