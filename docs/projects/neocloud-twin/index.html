@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurora Compute Command</title>
+<meta name="description" content="A synthetic digital twin for a sovereign GPU-as-a-service neocloud: sites, racks, supply chain, contracts, telemetry, workflows and what-if economics.">
+<style>
+:root{
+  --bg:#040704;--bg2:#070c08;--panel:#0b130d;--panel2:#0f1a11;--line:#22422a;--line2:#3a6b45;
+  --g:#6cff5c;--g2:#3fbf35;--gd:#1f5a22;--amber:#ffb347;--red:#ff4a4a;--cyan:#5ce1ff;--mag:#ff5cf0;
+  --text:#b9d6b3;--dim:#6f8f6a;--white:#e9f5e6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Share Tech Mono","Courier New",ui-monospace,monospace;font-size:13px;line-height:1.35;overflow:hidden}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);z-index:50;mix-blend-mode:multiply}
+.bevel{border:1px solid var(--line);box-shadow:inset 1px 1px 0 #2f5a37,inset -1px -1px 0 #020402,0 0 0 1px #050905;background:linear-gradient(180deg,var(--panel2),var(--panel))}
+#app{display:grid;grid-template-rows:44px 1fr 26px;grid-template-columns:172px 1fr 300px;height:100vh;gap:4px;padding:4px}
+header{grid-column:1/4;display:flex;align-items:center;gap:14px;padding:0 12px}
+header .brand{font-weight:700;letter-spacing:.22em;color:var(--g);text-shadow:0 0 8px rgba(108,255,92,.6);font-size:15px}
+header .brand small{color:var(--dim);letter-spacing:.1em;font-size:10px;margin-left:8px}
+header .spacer{flex:1}
+.led{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);margin-right:6px;vertical-align:middle}
+.led.amber{background:var(--amber);box-shadow:0 0 6px var(--amber)}
+.led.red{background:var(--red);box-shadow:0 0 6px var(--red);animation:blink 1s steps(2) infinite}
+.led.blink{animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+.hstat{font-size:11px;color:var(--dim);white-space:nowrap}
+.hstat b{color:var(--text)}
+nav{display:flex;flex-direction:column;gap:3px;padding:6px}
+nav button{all:unset;cursor:pointer;display:block;padding:8px 10px;border:1px solid var(--line);background:linear-gradient(180deg,#0e1a10,#08110a);color:var(--dim);letter-spacing:.14em;font-size:11px;text-transform:uppercase;box-shadow:inset 1px 1px 0 #2a4f31}
+nav button:hover{color:var(--text);border-color:var(--line2)}
+nav button.on{color:var(--g);border-color:var(--g2);background:linear-gradient(180deg,#14301a,#0b1c0f);text-shadow:0 0 6px rgba(108,255,92,.5)}
+nav .k{float:right;color:#3d6a44;font-size:10px}
+nav .sep{height:1px;background:var(--line);margin:6px 0}
+nav .radar{margin-top:auto;height:150px;position:relative}
+main{overflow:auto;padding:10px;position:relative}
+aside{display:flex;flex-direction:column;gap:4px;overflow:hidden}
+aside .box{flex:1;display:flex;flex-direction:column;min-height:0}
+aside .box h3{font-size:10px;letter-spacing:.2em;color:var(--dim);padding:6px 8px;border-bottom:1px solid var(--line)}
+aside .list{overflow:auto;padding:4px 8px;font-size:11px}
+aside .list div{padding:3px 0;border-bottom:1px dotted #17301b}
+aside .list .t{color:#4f7a55;margin-right:6px}
+aside .list .warn{color:var(--amber)}aside .list .crit{color:var(--red)}aside .list .ok{color:var(--g)}
+footer{grid-column:1/4;display:flex;align-items:center;gap:20px;padding:0 10px;font-size:10px;color:var(--dim);letter-spacing:.08em}
+h1{font-size:15px;letter-spacing:.2em;color:var(--white);margin-bottom:8px;text-transform:uppercase}
+h1 small{color:var(--dim);letter-spacing:.05em;font-size:11px;text-transform:none;margin-left:10px}
+h2{font-size:11px;letter-spacing:.2em;color:var(--g);text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.grid{display:grid;gap:8px}
+.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}.c6{grid-template-columns:repeat(6,1fr)}
+.p{padding:0 0 8px}
+.p .body{padding:6px 8px}
+.kpi{padding:8px 10px}
+.kpi .l{font-size:10px;letter-spacing:.15em;color:var(--dim);text-transform:uppercase}
+.kpi .v{font-size:22px;color:var(--white);margin:2px 0}
+.kpi .v.g{color:var(--g)}.kpi .v.a{color:var(--amber)}.kpi .v.r{color:var(--red)}.kpi .v.c{color:var(--cyan)}
+.kpi .s{font-size:10px;color:var(--dim)}
+.bar{height:8px;background:#0a150c;border:1px solid var(--line);position:relative;margin-top:4px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--g2)}
+.bar i.a{background:var(--amber)}.bar i.c{background:var(--cyan)}.bar i.r{background:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{font-weight:normal;color:var(--dim);letter-spacing:.1em;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line);text-transform:uppercase;font-size:10px}
+td{padding:4px 6px;border-bottom:1px dotted #17301b;vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:0 5px;border:1px solid var(--line2);font-size:10px;letter-spacing:.08em;color:var(--text)}
+.tag.g{color:var(--g);border-color:var(--g2)}.tag.a{color:var(--amber);border-color:var(--amber)}.tag.r{color:var(--red);border-color:var(--red)}.tag.c{color:var(--cyan);border-color:var(--cyan)}.tag.m{color:var(--mag);border-color:var(--mag)}
+button.btn{all:unset;cursor:pointer;padding:3px 10px;border:1px solid var(--line2);color:var(--text);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:#0d1b10;box-shadow:inset 1px 1px 0 #2f5a37}
+button.btn:hover{border-color:var(--g);color:var(--g)}
+button.btn.r{border-color:#7a2a2a;color:#ff9a9a}button.btn.r:hover{border-color:var(--red);color:var(--red)}
+button.btn:disabled{opacity:.4;cursor:default}
+.subtabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.subtabs button{all:unset;cursor:pointer;padding:4px 10px;border:1px solid var(--line);color:var(--dim);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.subtabs button.on{color:var(--g);border-color:var(--g2);background:#0f2213}
+.rackgrid{display:grid;gap:2px;grid-template-columns:repeat(var(--cols),1fr)}
+.rk{aspect-ratio:1;border:1px solid #0a150c;cursor:pointer;position:relative}
+.rk:hover{outline:1px solid var(--white);z-index:2}
+.rk.sel{outline:2px solid var(--white);z-index:3}
+.st-planned{background:#101a12}.st-ordered{background:#1b2a3a}.st-delivered{background:#2d4a6b}.st-installed{background:#5a5320}.st-commissioned{background:#8a7a1a}.st-accepted{background:#2f7a34}.st-live{background:#3fbf35}.st-degraded{background:#c77a1a}.st-maintenance{background:#7a4ad0}.st-fault{background:#d23a3a}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:var(--dim);margin:6px 0}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:middle;border:1px solid #0a150c}
+.site-img{width:100%;height:150px;object-fit:cover;filter:saturate(.6) contrast(1.1) brightness(.85);border:1px solid var(--line);display:block}
+.site-img-wrap{position:relative}
+.site-img-wrap span{position:absolute;left:8px;bottom:8px;background:rgba(4,7,4,.8);padding:2px 8px;font-size:10px;letter-spacing:.15em;color:var(--g);border:1px solid var(--gd)}
+canvas{display:block;width:100%;background:#050a06;border:1px solid var(--line)}
+.sl{display:grid;grid-template-columns:190px 1fr 70px;gap:8px;align-items:center;padding:4px 8px;font-size:11px}
+.sl input[type=range]{width:100%;accent-color:var(--g2)}
+.sl .val{text-align:right;color:var(--white);font-variant-numeric:tabular-nums}
+.check{list-style:none}
+.check li{padding:3px 0;border-bottom:1px dotted #17301b;font-size:11px}
+.check li::before{content:"■";margin-right:8px;color:var(--gd)}
+.check li.ok::before{color:var(--g)}.check li.warn::before{color:var(--amber)}.check li.bad::before{color:var(--red)}
+.gantt{display:grid;grid-template-columns:150px 1fr;gap:2px 8px;font-size:10px;align-items:center}
+.gantt .row{height:14px;position:relative;background:#081009;border:1px solid #14261a}
+.gantt .row i{position:absolute;top:2px;bottom:2px;background:var(--gd)}
+.gantt .row i.now{background:var(--g2)}.gantt .row i.slip{background:var(--amber)}
+.gantt .row b{position:absolute;top:0;bottom:0;width:1px;background:var(--red)}
+.steps{list-style:none}
+.steps li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;padding:5px 6px;border-bottom:1px dotted #17301b;font-size:11px;align-items:center}
+.steps li .n{color:var(--dim)}
+.steps li.done .n{color:var(--g)}.steps li.wait .n{color:var(--amber)}.steps li.ai .n{color:var(--mag)}.steps li.rej .n{color:var(--red)}
+.mono{white-space:pre;font-size:11px;line-height:1.4;color:#9fc29a;overflow:auto}
+.telerow{display:grid;grid-template-columns:110px repeat(6,1fr);gap:4px;font-size:11px;padding:3px 6px;border-bottom:1px dotted #17301b;align-items:center}
+.telerow.head{color:var(--dim);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.spark{height:16px;width:100%}
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;font-size:10px}
+.pipe .n{padding:6px;border:1px solid var(--line);background:#081009;min-height:86px}
+.pipe .n b{display:block;color:var(--cyan);letter-spacing:.1em;margin-bottom:4px;font-weight:normal}
+.pipe .n.core{border-color:var(--g2)}.pipe .n.core b{color:var(--g)}
+.muted{color:var(--dim)}
+.small{font-size:10px}
+.right{text-align:right}
+.risk{display:inline-block;width:60px;height:6px;background:#0a150c;border:1px solid var(--line);vertical-align:middle;margin-right:6px}
+.risk i{display:block;height:100%;background:var(--amber)}
+.err{position:fixed;left:10px;bottom:36px;background:#3a0c0c;color:#ffb3b3;padding:8px 12px;border:1px solid var(--red);z-index:99;font-size:11px;max-width:60vw}
+@media (max-width:1100px){#app{grid-template-columns:150px 1fr 240px}}
+@media (max-width:860px){#app{grid-template-columns:1fr;grid-template-rows:44px auto 1fr 26px}nav{flex-direction:row;flex-wrap:wrap}nav .radar,nav .sep{display:none}aside{display:none}.c4,.c6,.c3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="bevel">
+    <span class="brand">AURORA COMPUTE<small>SOVEREIGN AI FACTORY COMMAND</small></span>
+    <span class="hstat"><span class="led"></span>TELEMETRY <b id="h-tel">--</b></span>
+    <span class="hstat"><span class="led amber blink"></span>WORKFLOWS <b id="h-wf">--</b></span>
+    <span class="hstat"><span class="led" id="h-led"></span>ALERTS <b id="h-al">--</b></span>
+    <span class="spacer"></span>
+    <span class="hstat">WEEK <b id="h-week">0</b> · <b id="h-clock">--:--:--</b> AEST</span>
+  </header>
+  <nav class="bevel" id="nav"></nav>
+  <main class="bevel" id="main"></main>
+  <aside>
+    <div class="box bevel"><h3>ALERTS</h3><div class="list" id="alerts"></div></div>
+    <div class="box bevel"><h3>AUDIT LOG</h3><div class="list" id="audit"></div></div>
+  </aside>
+  <footer class="bevel">
+    <span>CONTROLS: every number on this screen is synthetic and deterministic (seeded). No real company, contract or customer is represented.</span>
+    <span class="spacer" style="flex:1"></span>
+    <span>UI inspired by late-90s RTS command consoles</span>
+  </footer>
+</div>
+<script>
+(function(){
+"use strict";
+window.addEventListener("error",e=>{const d=document.createElement("div");d.className="err";d.textContent="JS error: "+e.message+" @"+e.lineno;document.body.appendChild(d);});
+
+// ---------- PRNG ----------
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=mulberry32(20261001);
+const rnd=(a,b)=>a+(b-a)*R();
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const pick=a=>a[Math.floor(R()*a.length)];
+const fmt=n=>n.toLocaleString("en-AU",{maximumFractionDigits:0});
+const f1=n=>n.toLocaleString("en-AU",{maximumFractionDigits:1,minimumFractionDigits:1});
+const usd=n=>(n<0?"-":"")+"US$"+(Math.abs(n)>=1000?f1(Math.abs(n)/1000)+"B":fmt(Math.abs(n))+"M");
+const pct=n=>(n*100).toFixed(0)+"%";
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+// ---------- MODEL ----------
+const NOW_WEEK=0; // week 0 = today. Schedule weeks relative to today. Negative = already happened.
+const SITES=[
+  {id:"M3",name:"NEXTDC M3",city:"West Footscray, Melbourne",addr:"25 Indwe Street, West Footscray VIC 3012",img:"img/m3.jpg",mw:100,halls:["Hall 3A","Hall 3B","Hall 3C"],gb300:300,b200:14,energise:[-30,-6,18],x:0.32,y:0.80,lat:-37.80,lng:144.87},
+  {id:"SY3",name:"Equinix SY3",city:"Alexandria, Sydney",addr:"47 Bourke Road, Alexandria NSW 2015",img:"img/sy3.jpg",mw:70,halls:["Suite 2","Suite 4"],gb300:150,b200:40,energise:[-40,10],x:0.72,y:0.55,lat:-33.91,lng:151.19},
+  {id:"SY5",name:"Equinix SY5",city:"Alexandria, Sydney",addr:"Unit B, 200 Bourke Road, Alexandria NSW 2015",img:"img/sy5.jpg",mw:42,halls:["Suite 1","Suite 3"],gb300:106,b200:0,energise:[-12,26],x:0.74,y:0.60,lat:-33.92,lng:151.19},
+];
+const STATES=["planned","ordered","delivered","installed","commissioned","accepted","live","degraded","maintenance","fault"];
+const RACKS=[];
+(function buildRacks(){
+  let n=0;
+  for(const s of SITES){
+    const total=s.gb300+s.b200;
+    // baseline install schedule: staggered across halls, spread from week -34 to week +60
+    const perHall=Math.ceil(total/s.halls.length);
+    for(let i=0;i<total;i++){
+      const hall=s.halls[Math.min(Math.floor(i/perHall),s.halls.length-1)];
+      const hi=s.halls.indexOf(hall);
+      const type=i<s.gb300?"GB300 NVL72":"HGX B200";
+      const gpus=type==="GB300 NVL72"?72:32;
+      const kw=type==="GB300 NVL72"?ri(122,138):ri(38,44);
+      const base=s.energise[hi]||s.energise[s.energise.length-1];
+      const installWeek=base+Math.floor((i-hi*perHall)/perHall*40)+ri(0,3);
+      const r={id:s.id+"-"+hall.replace(/\s/g,"")+"-"+String(i%perHall+1).padStart(3,"0"),site:s.id,hall,pos:i%perHall,type,gpus,kw,tonnes:type==="GB300 NVL72"?1.5:0.9,
+        installWeek,cust:null,risk:rnd(0.01,0.12),seed:R(),temp:rnd(52,68),util:rnd(.55,.98),flow:rnd(28,36),nvl:ri(0,3),q:ri(0,40),n:n++};
+      RACKS.push(r);
+    }
+  }
+})();
+// customers
+const CONTRACTS=[
+  {id:"C-001",name:"Anchor vendor MSA",kind:"anchor",gpus:40032,mwIT:72,years:6,tcv:4900,floor:2.33,start:-8,deposit:0,lc:"n/a",status:"active",notes:"Take-or-pay floor on reserved capacity, upside split above floor"},
+  {id:"C-002",name:"Frontier lab (NZ)",kind:"top",gpus:9216,mwIT:18,years:5,tcv:1320,floor:2.9,start:30,deposit:120,lc:"LC US$110M received",status:"pre-deployment",notes:"Revenue from 1H 2027"},
+  {id:"C-003",name:"Regional SI (India)",kind:"top",gpus:8200,mwIT:15,years:5,tcv:1250,floor:2.8,start:2,deposit:23,lc:"LC US$140M outstanding",status:"at risk",notes:"Intermediary for an end customer; LC not posted; RBI localisation query open"},
+  {id:"C-004",name:"APAC platform co",kind:"top",gpus:6144,mwIT:12,years:5,tcv:950,floor:3.1,start:-4,deposit:144,lc:"Escrow released on acceptance",status:"active",notes:"First acceptance passed"},
+  {id:"C-005",name:"AI platform (global)",kind:"top",gpus:2048,mwIT:4,years:5,tcv:373,floor:3.4,start:14,deposit:37,lc:"Bank guarantee received",status:"pre-deployment",notes:"Revenue Q1 2027"},
+  {id:"C-006",name:"Design SaaS + GPU reseller",kind:"top",gpus:1024,mwIT:1.2,years:3,tcv:48,floor:2.6,start:-50,deposit:0,lc:"n/a",status:"active",notes:"H200/B200 on-demand and reserved"},
+];
+// assign racks to contracts by install order
+(function assign(){
+  const sorted=[...RACKS].sort((a,b)=>a.installWeek-b.installWeek);
+  const pools=CONTRACTS.map(c=>({c,left:c.gpus}));
+  for(const r of sorted){
+    if(r.type==="HGX B200"){r.cust="C-006";continue;}
+    const cand=pools.filter(p=>p.left>=72);const p=cand.sort((a,b)=>b.left/b.c.gpus-a.left/a.c.gpus)[0];
+    if(p){r.cust=p.c.id;p.left-=72}else r.cust="SPOT";
+  }
+})();
+
+// what-if parameters
+const P={slip:0,capex:0,opex:0,tcv:0,floor:2.33,split:50,util:78,market:4.2};
+const CASH0=1860; // US$M
+const RACK_CAPEX=5.2; // US$M per NVL72 incl network/storage share
+const B200_CAPEX=1.1;
+const COLO_PER_MW_YR=3.4; // US$M per MW IT per year incl power
+const SGA_YR=60, INT_YR=54;
+
+function rackState(r,week){
+  const w=r.installWeek+P.slip;
+  if(week<w-16)return"planned";
+  if(week<w-8)return"ordered";
+  if(week<w-2)return"delivered";
+  if(week<w)return"installed";
+  if(week<w+3)return"commissioned";
+  if(week<w+5)return"accepted";
+  // live with faults
+  const h=(r.seed*1000+week)%1;
+  if(r.risk>0.09&&h<0.35)return"degraded";
+  if(r.seed<0.03&&week%9===0)return"maintenance";
+  if(r.risk>0.11&&h<0.08)return"fault";
+  return"live";
+}
+function fleet(week){
+  const o={};for(const s of STATES)o[s]=0;
+  let gpusLive=0,gpusAcc=0,gpusDel=0,kwLive=0,gpusContracted=0;
+  for(const r of RACKS){const st=rackState(r,week);o[st]++;
+    const live=["accepted","live","degraded","maintenance"].includes(st);
+    if(live){gpusLive+=r.gpus;kwLive+=r.kw}
+    if(["accepted","live","degraded","maintenance","fault","commissioned"].includes(st))gpusAcc+=r.gpus;
+    if(!["planned","ordered"].includes(st))gpusDel+=r.gpus;
+    if(r.cust&&r.cust!=="SPOT")gpusContracted+=r.gpus;
+  }
+  return{states:o,gpusLive,gpusAcc,gpusDel,kwLive,gpusContracted,gpusTotal:RACKS.reduce((a,r)=>a+r.gpus,0)};
+}
+// quarterly model, 14 quarters from Q4 2026
+const QUARTERS=[];for(let i=0;i<14;i++){const y=2026+Math.floor((3+i)/4);const q=((3+i)%4)+1;QUARTERS.push({label:"Q"+q+" "+y,w0:i*13,w1:i*13+13})}
+function model(){
+  const out=[];let cash=CASH0,cum=0,be=null;
+  const site={};for(const s of SITES)site[s.id]={flows:[],capex:0};
+  for(const [qi,q] of QUARTERS.entries()){
+    let rev=0,revFloor=0,revOther=0,revUp=0,capex=0,colo=0;const sr={};for(const s of SITES)sr[s.id]={rev:0,capex:0,colo:0};
+    for(const r of RACKS){
+      const w=r.installWeek+P.slip;
+      if(w>=q.w0&&w<q.w1){const c=(r.type==="GB300 NVL72"?RACK_CAPEX:B200_CAPEX)*(1+P.capex/100);capex+=c;sr[r.site].capex+=c;site[r.site].capex+=c}
+      // revenue weeks live in quarter (live from w+5)
+      const liveFrom=w+5;const wl=Math.max(0,Math.min(q.w1,Infinity)-Math.max(q.w0,liveFrom));
+      if(wl<=0)continue;
+      const hrs=wl*7*24;const gpuH=r.gpus*hrs;
+      const c=CONTRACTS.find(c=>c.id===r.cust);
+      let rr=0;
+      if(c&&c.kind==="anchor"){const fl=gpuH*P.floor/1e6;const up=Math.max(0,P.market-P.floor)*gpuH*(P.util/100)/1e6*(1-P.split/100);rr=fl+up;revFloor+=fl;revUp+=up}
+      else if(c){const t=c.tcv*(1+P.tcv/100);const perGpuH=t/(c.gpus*c.years*8760);rr=gpuH*perGpuH*(c.status==="at risk"?0.55:1);revOther+=rr}
+      else{rr=gpuH*P.market*0.6*(P.util/100)/1e6;revOther+=rr}
+      rev+=rr;sr[r.site].rev+=rr;
+      const cl=r.kw/1000*COLO_PER_MW_YR/4*(1+P.opex/100)*(wl/13);colo+=cl;sr[r.site].colo+=cl;
+    }
+    const opex=colo+SGA_YR/4+INT_YR/4;
+    const net=rev-opex-capex;cash+=net;cum+=net;
+    if(be===null&&rev-opex>0&&qi>0)be=q.label;
+    for(const s of SITES)site[s.id].flows.push(sr[s.id].rev-sr[s.id].colo-sr[s.id].capex);
+    out.push({q:q.label,rev,revFloor,revOther,revUp,capex,opex,net,cash});
+  }
+  const irr={};for(const s of SITES){const fl=site[s.id].flows.slice();for(let k=0;k<12;k++)fl.push(fl[fl.length-1]*0.97);irr[s.id]=IRR(fl)}
+  return{rows:out,be,irr,minCash:Math.min(...out.map(r=>r.cash))};
+}
+function IRR(flows){let lo=-0.9,hi=3;const npv=r=>flows.reduce((a,f,i)=>a+f/Math.pow(1+r,i/4),0);if(npv(lo)*npv(hi)>0)return null;for(let i=0;i<80;i++){const m=(lo+hi)/2;if(npv(m)>0)lo=m;else hi=m}return(lo+hi)/2}
+
+// ---------- LOG / ALERTS ----------
+const AUDIT=[],ALERTS=[];
+function log(msg,cls){AUDIT.unshift({t:tstamp(),msg,cls});if(AUDIT.length>80)AUDIT.pop();renderSide()}
+function alert(msg,cls){ALERTS.unshift({t:tstamp(),msg,cls});if(ALERTS.length>40)ALERTS.pop();renderSide()}
+function tstamp(){const d=new Date();return d.toTimeString().slice(0,8)}
+function renderSide(){
+  document.getElementById("alerts").innerHTML=ALERTS.map(a=>`<div><span class="t">${a.t}</span><span class="${a.cls||""}">${esc(a.msg)}</span></div>`).join("")||'<div class="muted">no alerts</div>';
+  document.getElementById("audit").innerHTML=AUDIT.map(a=>`<div><span class="t">${a.t}</span><span class="${a.cls||""}">${esc(a.msg)}</span></div>`).join("")||'<div class="muted">empty</div>';
+  const crit=ALERTS.filter(a=>a.cls==="crit").length;
+  document.getElementById("h-al").textContent=ALERTS.length+(crit?" ("+crit+" crit)":"");
+  document.getElementById("h-led").className="led"+(crit?" red":ALERTS.length?" amber":"");
+  document.getElementById("h-wf").textContent=WORKFLOWS.filter(w=>w.steps.some(s=>s.state==="wait")).length+" awaiting";
+}
+
+// ---------- WORKFLOWS ----------
+const WORKFLOWS=[
+  {id:"WF-1041",name:"Rack thermal excursion",trigger:"M3-Hall3B-041 inlet 71°C > 68°C for 4 min",steps:[
+    {n:"Detect (DCGM + BMS correlation, 3 sensors agree)",k:"auto",state:"done"},
+    {n:"Throttle GPU clocks to 80% via orchestration API",k:"auto",state:"done"},
+    {n:"Open ticket, attach telemetry window and CDU flow trace",k:"auto",state:"done"},
+    {n:"AI: diagnose cause from history (CDU pump B degraded, 0.81 confidence)",k:"ai",state:"done"},
+    {n:"Human: approve CDU pump swap and 2h maintenance window (customer C-004 notified)",k:"human",state:"wait"},
+    {n:"Execute swap, restore clocks, close ticket, credit note if SLA breached",k:"auto",state:"todo"}]},
+  {id:"WF-1038",name:"Customer acceptance test failed",trigger:"C-002 batch 3: NCCL all-reduce 12% under committed bandwidth",steps:[
+    {n:"Hold acceptance certificate and milestone invoice (US$18.4M)",k:"auto",state:"done"},
+    {n:"Notify customer success and finance; deferred revenue unchanged",k:"auto",state:"done"},
+    {n:"AI: propose root cause (InfiniBand cable batch, 0.66 confidence) and retest plan",k:"ai",state:"done"},
+    {n:"Human: approve retest after recabling, or escalate to vendor",k:"human",state:"wait"},
+    {n:"Retest, reissue certificate, release invoice",k:"auto",state:"todo"}]},
+  {id:"WF-1035",name:"Utilisation below floor",trigger:"Anchor pool utilisation 61% for 14 days (floor economics unaffected, upside lost)",steps:[
+    {n:"Compute idle GPU-hours and marginal value at market rate",k:"auto",state:"done"},
+    {n:"Offer spare capacity to internal inference pool as pre-emptible pods",k:"auto",state:"done"},
+    {n:"AI: forecast 30-day demand and price the resale block",k:"ai",state:"done"},
+    {n:"Human: approve resale of 1,152 GPU block for 21 days at US$3.60/GPU-h",k:"human",state:"wait"},
+    {n:"Publish to marketplace, meter, bill, report upside split",k:"auto",state:"todo"}]},
+  {id:"WF-1029",name:"Delivery slip > 2 weeks",trigger:"Vendor tranche T-07 (4,608 GPUs) ETA moved from wk 14 to wk 18",steps:[
+    {n:"Re-sequence install crews and CDU commissioning across SY3 and M3",k:"auto",state:"done"},
+    {n:"Recompute quarterly revenue and cash runway (Q2 2027 revenue -US$21M)",k:"auto",state:"done"},
+    {n:"AI: draft customer notice and board note with options",k:"ai",state:"done"},
+    {n:"Human: COO approves board note and customer communication",k:"human",state:"wait"},
+    {n:"Send, update contract milestone dates, log in disclosure register",k:"auto",state:"todo"}]},
+  {id:"WF-1022",name:"Letter of credit overdue",trigger:"C-003 LC US$140M not received by contract date",steps:[
+    {n:"Freeze further rack allocation to C-003 (8,200 GPUs)",k:"auto",state:"done"},
+    {n:"Notify CFO, CLO, CRO; mark contract at risk in revenue model",k:"auto",state:"done"},
+    {n:"AI: quantify exposure and alternative demand for the same racks",k:"ai",state:"done"},
+    {n:"Human: CFO decides: extend 30 days, or re-market capacity",k:"human",state:"wait"},
+    {n:"Apply decision, update disclosure register and forecast",k:"auto",state:"todo"}]},
+];
+function wfAct(id,ok){const w=WORKFLOWS.find(w=>w.id===id);const s=w.steps.find(s=>s.state==="wait");if(!s)return;s.state=ok?"done":"rej";
+  if(ok){const nx=w.steps.find(s=>s.state==="todo");if(nx)nx.state="done";log(`${id} approved: "${s.n.slice(7,60)}"`,"ok")}
+  else{w.steps.filter(s=>s.state==="todo").forEach(s=>s.state="rej");log(`${id} rejected at human gate; workflow halted, escalation opened`,"warn")}
+  render()}
+
+// ---------- AGENTS ----------
+const AGENTS=[
+  {name:"Inference resale pool",pods:24,gpuH:38400,save:"US$92k/wk revenue",guard:"Price floor, tenant isolation, no training on customer data",st:"running",note:"Serves third-party LLM inference on idle anchor capacity; pre-emptible within 90s when a contracted tenant claims it"},
+  {name:"Board-pack and management reporting",pods:2,gpuH:410,save:"~3 analyst days/mth",guard:"Reads semantic layer only; every figure carries lineage id; CFO sign-off before distribution",st:"running",note:"Drafts the monthly pack from governed metrics, flags any number that changed by >5% since last pack"},
+  {name:"IRR and projection agent",pods:1,gpuH:120,save:"Scenario turnaround 2d → 20min",guard:"Model versions pinned; assumptions logged; outputs marked draft",st:"running",note:"Reruns the site IRR and cash model on every schedule or contract change"},
+  {name:"Legal and finance documents",pods:1,gpuH:80,save:"First drafts in hours",guard:"Clean-room pod, no internet, CLO approval gate, redline retained",st:"idle",note:"Capital-raise and SPAC-style drafting from templates and the disclosure register; humans own every filing"},
+  {name:"Programme management",pods:2,gpuH:260,save:"Slippage seen 2 wks earlier",guard:"Read-only on vendor portal; writes only to its own board",st:"running",note:"Watches tranche ETAs, crew rosters and energisation dates; raises WF-1029 style workflows"},
+  {name:"Secure clean-room broker",pods:3,gpuH:5200,save:"Enables regulated tenants",guard:"Air-gapped enclave, attestation on boot, egress denied, audit to WORM store",st:"running",note:"Brokers restricted-data jobs into isolated partitions with attested images"},
+  {name:"Predictive maintenance",pods:1,gpuH:60,save:"Avoided 3 unplanned outages/qtr",guard:"Recommendations only; approval gate on any physical action",st:"running",note:"Scores rack failure risk from thermal, NVLink error and coolant history"},
+];
+
+// ---------- SUPPLY CHAIN ----------
+const TRANCHES=[];(function(){const names=["T-01","T-02","T-03","T-04","T-05","T-06","T-07","T-08","T-09","T-10"];let w=-36;for(const [i,n] of names.entries()){const gpus=i<2?2304:4608;const eta=w+P.slip;const st=eta<-6?"installed":eta<0?"delivered":eta<4?"in customs":eta<10?"in transit":eta<20?"allocated":"forecast";TRANCHES.push({id:n,gpus,racks:gpus/72,eta:w,site:i%3===0?"M3":i%3===1?"SY3":"SY5",st,lead:ri(9,14),crew:pick(["Crew A","Crew B","Crew C","Vendor FE"])});w+=10}})();
+
+// ---------- NAV / RENDER ----------
+const TABS=[["command","Command"],["sites","Sites"],["supply","Supply chain"],["whatif","What-if"],["telemetry","Telemetry"],["contracts","Contracts & cash"],["workflows","Workflows"],["agents","Agents / dogfood"],["ml","ML"]];
+let TAB=(location.hash.slice(1)||"command"),SITE="M3",SELRACK=null;if(TAB.includes("/")){SITE=TAB.split("/")[1];TAB=TAB.split("/")[0]}if(!TABS.some(t=>t[0]===TAB))TAB="command";
+function nav(){document.getElementById("nav").innerHTML=TABS.map(([k,l],i)=>`<button data-t="${k}" class="${TAB===k?"on":""}">${l}<span class="k">F${i+1}</span></button>`).join("")+'<div class="sep"></div><div class="radar bevel"><canvas id="radar" width="150" height="140"></canvas></div>';
+  document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{TAB=b.dataset.t;log("view: "+TAB);render()});}
+function render(){nav();const m=document.getElementById("main");m.innerHTML=({command,sites,supply,whatif,telemetry,contracts,workflows,agents,ml})[TAB]();bind();drawRadar();renderSide()}
+
+function kpi(l,v,s,cls,bar){return`<div class="kpi bevel"><div class="l">${l}</div><div class="v ${cls||""}">${v}</div><div class="s">${s||""}</div>${bar!==undefined?`<div class="bar"><i class="${cls||""}" style="width:${Math.min(100,bar*100)}%"></i></div>`:""}</div>`}
+
+function command(){
+  const f=fleet(NOW_WEEK),m=model();const q0=m.rows[0],q4=m.rows[4];
+  const contractedMW=120,securedMW=212,anchorMW=72;
+  const liveMW=f.kwLive/1000;
+  const runrate=q0.rev*4;const floorRR=(40032*P.floor*8760/1e6);
+  const util=P.util/100;
+  const burn=-(m.rows.slice(0,4).reduce((a,r)=>a+Math.min(0,r.net),0));
+  const runway=burn>0?(CASH0/(burn/12)).toFixed(0)+" mo":"n/a";
+  const days=Math.max(0,Math.round((CONTRACTS.find(c=>c.id==="C-002").start+P.slip+5)*7));
+  return`<h1>Command overview <small>week ${NOW_WEEK} · fleet ${fmt(RACKS.length)} racks · ${fmt(f.gpusTotal)} GPUs modelled</small></h1>
+  <div class="grid c6">
+    ${kpi("Secured capacity",securedMW+" MW","across 3 sites, IT load","",1)}
+    ${kpi("Contracted",contractedMW+" MW",pct(contractedMW/securedMW)+" of secured","c",contractedMW/securedMW)}
+    ${kpi("Delivered",f1(f.gpusDel/72*0.13)+" MW",fmt(f.gpusDel)+" GPUs on floor","",f.gpusDel/f.gpusTotal)}
+    ${kpi("Accepted",f1(f.gpusAcc/72*0.13)+" MW",fmt(f.gpusAcc)+" GPUs certified","g",f.gpusAcc/f.gpusTotal)}
+    ${kpi("Live",f1(liveMW)+" MW",fmt(f.gpusLive)+" GPUs billing","g",liveMW/securedMW)}
+    ${kpi("Utilised",f1(liveMW*util)+" MW",pct(util)+" of live (floor pays regardless)","a",util)}
+  </div>
+  <div class="grid c4" style="margin-top:8px">
+    ${kpi("Revenue run-rate",usd(runrate),"this quarter ×4","c")}
+    ${kpi("Anchor floor at full deployment",usd(floorRR),"US$"+P.floor.toFixed(2)+"/GPU-h × 40,032 GPUs","g")}
+    ${kpi("Cash and runway",usd(CASH0)+" · "+runway,"min cash in plan "+usd(m.minCash),m.minCash<0?"r":"")}
+    ${kpi("Days to next revenue tranche",days+" d","frontier lab batch 1, incl. "+P.slip+" wk slip",P.slip>4?"a":"")}
+  </div>
+  <div class="grid c2" style="margin-top:8px">
+    <div class="p bevel"><h2>Site status</h2><div class="body">
+      <table><tr><th>Site</th><th>Halls</th><th class="num">Racks</th><th class="num">Live</th><th class="num">Degraded</th><th class="num">Next energisation</th><th>Status</th></tr>
+      ${SITES.map(s=>{const rs=RACKS.filter(r=>r.site===s.id);const st=rs.map(r=>rackState(r,NOW_WEEK));const live=st.filter(x=>x==="live").length,deg=st.filter(x=>x==="degraded"||x==="fault").length;const ne=s.energise.find(e=>e+P.slip>NOW_WEEK);return`<tr><td><b>${s.name}</b><br><span class="muted small">${s.city}</span></td><td>${s.halls.length}</td><td class="num">${rs.length}</td><td class="num">${live}</td><td class="num ${deg?"":"muted"}">${deg}</td><td class="num">${ne===undefined?"all energised":"wk "+(ne+P.slip)}</td><td>${deg>3?'<span class="tag a">ATTENTION</span>':'<span class="tag g">NOMINAL</span>'}</td></tr>`}).join("")}
+      </table></div></div>
+    <div class="p bevel"><h2>Contract to cash funnel</h2><div class="body">
+      ${[["TCV contracted (all)",CONTRACTS.reduce((a,c)=>a+c.tcv,0)*(1+P.tcv/100),1],["of which anchor floor (guaranteed)",4900,4900/8841],["of which other take-or-pay (at risk)",3941*(1+P.tcv/100),3941/8841],["Capacity delivered to date (GPUs)",f.gpusDel,f.gpusDel/f.gpusTotal,"n"],["Accepted (GPUs)",f.gpusAcc,f.gpusAcc/f.gpusTotal,"n"],["Live and billing (GPUs)",f.gpusLive,f.gpusLive/f.gpusTotal,"n"],["Revenue recognised this quarter",q0.rev,q0.rev/Math.max(1,q4.rev)],["Revenue in 4 quarters",q4.rev,1]].map(([l,v,b,n])=>`<div class="small" style="display:flex;justify-content:space-between;margin-top:4px"><span>${l}</span><b>${n?fmt(v):usd(v)}</b></div><div class="bar"><i style="width:${Math.min(100,b*100)}%"></i></div>`).join("")}
+    </div></div>
+  </div>
+  <div class="grid c2" style="margin-top:8px">
+    <div class="p bevel"><h2>Theatre map</h2><div class="body"><canvas id="map" width="640" height="300"></canvas></div></div>
+    <div class="p bevel"><h2>Revenue vs cost, next 14 quarters</h2><div class="body"><canvas id="cmdchart" width="640" height="300"></canvas><div class="small muted" style="margin-top:4px">green = revenue · amber = opex · red = capex · cyan = cash balance (right axis)</div></div></div>
+  </div>`;
+}
+
+function sites(){
+  const s=SITES.find(x=>x.id===SITE);const rs=RACKS.filter(r=>r.site===s.id);
+  const cols=s.id==="M3"?30:24;
+  const st=rs.map(r=>rackState(r,NOW_WEEK));const cnt={};for(const x of st)cnt[x]=(cnt[x]||0)+1;
+  const sel=SELRACK&&RACKS.find(r=>r.id===SELRACK);
+  const tonnes=rs.filter((r,i)=>!["planned","ordered"].includes(st[i])).reduce((a,r)=>a+r.tonnes,0);
+  const kwMax=rs.reduce((a,r)=>a+r.kw,0)/1000;
+  const check=[
+    ["Power: "+s.mw+" MW IT allocated, "+s.energise.filter(e=>e+P.slip<=NOW_WEEK).length+"/"+s.energise.length+" halls energised",s.energise.every(e=>e+P.slip<=NOW_WEEK)?"ok":"warn"],
+    ["Floor loading: NVL72 at ~1.5 t on 0.6 m² needs ≥ 2,000 kg/m² slab rating; "+(s.id==="SY3"?"Suite 4 rated 1,500 kg/m², spreader plates specified":"certified"),s.id==="SY3"?"warn":"ok"],
+    ["Liquid cooling: CDUs commissioned "+(s.id==="SY5"?"1 of 2":"all")+", secondary loop pressure-tested",s.id==="SY5"?"warn":"ok"],
+    ["Plumbing: facility water to CDU manifold, leak detection under every row",s.id==="M3"?"ok":"warn"],
+    ["Rack weight path: crane/lift and floor route certified for 1.6 t crated rack","ok"],
+    ["Network: 800G InfiniBand spine and storage fabric cabled and tested",s.id==="SY3"?"bad":"ok"],
+    ["Fire and gas: suppression re-certified for liquid-cooled halls","ok"],
+    ["Security: sovereign zone, attested access, no foreign remote hands","ok"],
+  ];
+  return`<h1>Sites <small>${s.addr}</small></h1>
+  <div class="subtabs">${SITES.map(x=>`<button data-s="${x.id}" class="${x.id===SITE?"on":""}">${x.name}</button>`).join("")}</div>
+  <div class="grid" style="grid-template-columns:1fr 2fr 1fr">
+    <div>
+      <div class="site-img-wrap"><img class="site-img" src="${s.img}" alt="${s.name}"><span>${s.id} · ${s.mw} MW IT</span></div>
+      <div class="p bevel" style="margin-top:8px"><h2>Readiness</h2><ul class="check" style="padding:4px 8px">${check.map(([t,c])=>`<li class="${c}">${t}</li>`).join("")}</ul></div>
+      <div class="p bevel" style="margin-top:8px"><h2>Halls</h2><div class="body small">${s.halls.map((h,i)=>`<div style="display:flex;justify-content:space-between"><span>${h}</span><span>${(s.energise[i]||s.energise.at(-1))+P.slip<=NOW_WEEK?'<span class="tag g">ENERGISED</span>':'<span class="tag a">wk '+((s.energise[i]||s.energise.at(-1))+P.slip)+'</span>'}</span></div>`).join("")}
+      <div style="margin-top:6px">Installed mass: <b>${fmt(tonnes)} t</b> · design IT load: <b>${f1(kwMax)} MW</b></div></div></div>
+    </div>
+    <div class="p bevel"><h2>Rack grid · ${rs.length} racks · click for telemetry</h2><div class="body">
+      <div class="legend">${STATES.map(x=>`<span><i class="st-${x}"></i>${x} ${cnt[x]||0}</span>`).join("")}</div>
+      <div class="rackgrid" style="--cols:${cols}">${rs.map((r,i)=>`<div class="rk st-${st[i]} ${r.id===SELRACK?"sel":""}" data-r="${r.id}" title="${r.id} · ${r.type} · ${st[i]}"></div>`).join("")}</div>
+    </div></div>
+    <div class="p bevel"><h2>Rack detail</h2><div class="body small">${sel?rackDetail(sel):'<span class="muted">select a rack</span>'}</div></div>
+  </div>`;
+}
+function rackDetail(r){const st=rackState(r,NOW_WEEK);const c=CONTRACTS.find(c=>c.id===r.cust);
+  return`<div><b style="color:var(--white)">${r.id}</b> <span class="tag ${st==="live"?"g":st==="degraded"||st==="fault"?"r":"a"}">${st.toUpperCase()}</span></div>
+  <table style="margin-top:6px"><tr><td>Type</td><td class="num">${r.type}</td></tr><tr><td>GPUs</td><td class="num">${r.gpus}</td></tr><tr><td>Design load</td><td class="num">${r.kw} kW</td></tr><tr><td>Mass</td><td class="num">${r.tonnes} t</td></tr><tr><td>Hall</td><td class="num">${r.hall}</td></tr><tr><td>Install week</td><td class="num">${r.installWeek+P.slip}</td></tr><tr><td>Tenant</td><td class="num">${c?c.name:"Spot / internal"}</td></tr><tr><td>Failure risk (90d)</td><td class="num">${pct(r.risk)}</td></tr></table>
+  ${["accepted","live","degraded","maintenance","fault"].includes(st)?`<div style="margin-top:8px"><b>Live telemetry</b><table><tr><td>GPU util</td><td class="num">${pct(r.util)}</td></tr><tr><td>Inlet temp</td><td class="num">${r.temp.toFixed(1)} °C</td></tr><tr><td>Power draw</td><td class="num">${(r.kw*r.util*0.92).toFixed(0)} kW</td></tr><tr><td>Coolant flow</td><td class="num">${r.flow.toFixed(1)} L/min</td></tr><tr><td>NVLink errs/h</td><td class="num">${r.nvl}</td></tr><tr><td>Queue depth</td><td class="num">${r.q}</td></tr></table><canvas class="spark" id="spark" width="240" height="40" style="margin-top:6px"></canvas></div>`:'<div class="muted" style="margin-top:8px">no telemetry before acceptance</div>'}
+  <div style="margin-top:8px"><button class="btn" data-act="ticket" data-r="${r.id}">Open ticket</button> <button class="btn" data-act="drain" data-r="${r.id}">Drain jobs</button></div>`}
+
+function supply(){
+  const weeks=Array.from({length:60},(_,i)=>i-36);
+  return`<h1>Supply chain <small>vendor allocation tranches, logistics, crews, energisation</small></h1>
+  <div class="grid c4">${kpi("GPUs allocated by vendor",fmt(TRANCHES.reduce((a,t)=>a+t.gpus,0)),"10 tranches to wk "+(TRANCHES.at(-1).eta+P.slip))}${kpi("In transit or customs",fmt(TRANCHES.filter(t=>/transit|customs/.test(t.st)).reduce((a,t)=>a+t.gpus,0)),"next arrival T-"+String(TRANCHES.findIndex(t=>t.eta+P.slip>=0)+1).padStart(2,"0"),"c")}${kpi("Lead time (order to dock)",TRANCHES.reduce((a,t)=>a+t.lead,0)/TRANCHES.length+" wks","vendor quoted 10 to 12","a")}${kpi("Schedule slip applied",P.slip+" wks","from What-if tab",P.slip>0?"a":"g")}</div>
+  <div class="p bevel" style="margin-top:8px"><h2>Tranches</h2><div class="body"><table><tr><th>Tranche</th><th class="num">GPUs</th><th class="num">Racks</th><th>Site</th><th class="num">ETA (wk)</th><th>Status</th><th>Install crew</th><th class="num">Lead time</th><th>Customs / compliance</th></tr>
+  ${TRANCHES.map(t=>`<tr><td>${t.id}</td><td class="num">${fmt(t.gpus)}</td><td class="num">${t.racks}</td><td>${t.site}</td><td class="num">${t.eta+P.slip}</td><td><span class="tag ${/installed|delivered/.test(t.st)?"g":/customs|transit/.test(t.st)?"c":"a"}">${t.st.toUpperCase()}</span></td><td>${t.crew}</td><td class="num">${t.lead} wk</td><td class="small muted">${t.eta+P.slip<0?"cleared, export licence on file":"export licence approved, ITAR n/a, DAFF biosecurity for crates"}</td></tr>`).join("")}</table></div></div>
+  <div class="p bevel" style="margin-top:8px"><h2>Install schedule (weeks relative to today; red line = now)</h2><div class="body">
+    <div class="gantt">${SITES.flatMap(s=>s.halls.map((h,i)=>{const rs=RACKS.filter(r=>r.site===s.id&&r.hall===h);const a=Math.min(...rs.map(r=>r.installWeek))+P.slip,b=Math.max(...rs.map(r=>r.installWeek))+P.slip;const e=(s.energise[i]||s.energise.at(-1))+P.slip;const L=w=>((w+36)/72*100);return`<div>${s.id} ${h}</div><div class="row"><i class="${P.slip>0?"slip":""}" style="left:${Math.max(0,L(a))}%;width:${Math.max(1,Math.min(100,L(b))-Math.max(0,L(a)))}%"></i><i class="now" style="left:${Math.max(0,Math.min(98.8,L(e)))}%;width:1.2%;background:var(--cyan)" title="energisation"></i><b style="left:${L(0)}%"></b></div>`})).join("")}</div>
+    <div class="small muted" style="margin-top:6px">bar = rack install window per hall · cyan tick = hall energisation · amber = slipped. Critical path: energisation → CDU commissioning → rack landing (1.6 t crated, floor route) → cabling → burn-in → customer acceptance.</div>
+  </div></div>`;
+}
+
+function whatif(){
+  const m=model();
+  const sl=(k,l,min,max,step,fmtv)=>`<div class="sl"><span>${l}</span><input type="range" data-p="${k}" min="${min}" max="${max}" step="${step}" value="${P[k]}"><span class="val" id="v-${k}">${fmtv(P[k])}</span></div>`;
+  return`<h1>What-if <small>deterministic model; drag and everything recomputes</small></h1>
+  <div class="grid" style="grid-template-columns:420px 1fr">
+    <div class="p bevel"><h2>Levers</h2>
+      ${sl("slip","Install schedule slip",-8,26,1,v=>v+" wk")}
+      ${sl("capex","Rack capex change",-25,40,1,v=>v+"%")}
+      ${sl("opex","Colo + power cost change",-20,60,1,v=>v+"%")}
+      ${sl("tcv","Other-customer TCV change",-60,30,1,v=>v+"%")}
+      ${sl("floor","Anchor floor price / GPU-h",1.5,3.5,0.01,v=>"US$"+Number(v).toFixed(2))}
+      ${sl("market","Market price / GPU-h",2.5,6,0.05,v=>"US$"+Number(v).toFixed(2))}
+      ${sl("split","Upside split to vendor",0,90,1,v=>v+"%")}
+      ${sl("util","Utilisation",30,100,1,v=>v+"%")}
+      <div class="body small muted">Assumptions: US$${RACK_CAPEX}M per NVL72 rack incl. network, storage and fit-out share; US$${COLO_PER_MW_YR}M per MW-year colo and power; SG&A US$${SGA_YR}M pa; interest US$${INT_YR}M pa; opening cash ${usd(CASH0)}; at-risk contract modelled at 55% of value. Floor is take-or-pay so it pays regardless of utilisation.</div>
+      <div class="body"><button class="btn" id="reset">Reset levers</button></div>
+    </div>
+    <div>
+      <div class="grid c4">${kpi("Break-even quarter",m.be||"beyond horizon","revenue > opex","g")}${kpi("Minimum cash",usd(m.minCash),"lowest point in 14 quarters",m.minCash<0?"r":m.minCash<300?"a":"g")}${kpi("Revenue Q4 2027",usd(m.rows[4].rev),"floor "+usd(m.rows[4].revFloor)+" · other "+usd(m.rows[4].revOther)+" · upside "+usd(m.rows[4].revUp),"c")}${kpi("Site IRR (est.)",SITES.map(s=>s.id+" "+(m.irr[s.id]===null?"n/a":pct(m.irr[s.id]))).join(" · "),"20-quarter horizon, unlevered")}</div>
+      <div class="p bevel" style="margin-top:8px"><h2>Revenue by quarter and cumulative cash</h2><div class="body"><canvas id="wchart" width="900" height="320"></canvas></div></div>
+      <div class="p bevel" style="margin-top:8px"><h2>Quarterly table (US$M)</h2><div class="body"><table><tr><th>Quarter</th><th class="num">Revenue</th><th class="num">Floor</th><th class="num">Other</th><th class="num">Upside</th><th class="num">Opex</th><th class="num">Capex</th><th class="num">Net</th><th class="num">Cash</th></tr>
+      ${m.rows.map(r=>`<tr><td>${r.q}</td><td class="num">${fmt(r.rev)}</td><td class="num">${fmt(r.revFloor)}</td><td class="num">${fmt(r.revOther)}</td><td class="num">${fmt(r.revUp)}</td><td class="num">${fmt(r.opex)}</td><td class="num">${fmt(r.capex)}</td><td class="num" style="color:${r.net<0?"var(--red)":"var(--g)"}">${fmt(r.net)}</td><td class="num" style="color:${r.cash<0?"var(--red)":"inherit"}">${fmt(r.cash)}</td></tr>`).join("")}</table></div></div>
+    </div>
+  </div>`;
+}
+
+function telemetry(){
+  const live=RACKS.filter(r=>["live","degraded","fault","maintenance"].includes(rackState(r,NOW_WEEK)));
+  const show=live.filter((r,i)=>i%Math.ceil(live.length/28)===0).slice(0,28);
+  const avg=k=>live.reduce((a,r)=>a+r[k],0)/Math.max(1,live.length);
+  return`<h1>Telemetry <small>${fmt(live.length)} racks streaming · ${fmt(live.length*72)} GPUs · refresh 1 s</small></h1>
+  <div class="grid c6">${kpi("Fleet GPU util",pct(avg("util")),"anchor floor pays regardless","g",avg("util"))}${kpi("Mean inlet",avg("temp").toFixed(1)+" °C","alarm at 68 °C",avg("temp")>64?"a":"")}${kpi("Power draw",f1(live.reduce((a,r)=>a+r.kw*r.util*0.92,0)/1000)+" MW","of "+f1(live.reduce((a,r)=>a+r.kw,0)/1000)+" MW design","c")}${kpi("Coolant flow",avg("flow").toFixed(1)+" L/min","per rack mean")}${kpi("NVLink errs/h",fmt(live.reduce((a,r)=>a+r.nvl,0)),"fleet total",live.reduce((a,r)=>a+r.nvl,0)>300?"a":"")}${kpi("Queued jobs",fmt(live.reduce((a,r)=>a+r.q,0)),"across tenants")}</div>
+  <div class="grid" style="grid-template-columns:2fr 1fr;margin-top:8px">
+    <div class="p bevel"><h2>Rack stream (sample of ${show.length})</h2><div class="body" id="telebody">${teleRows(show)}</div></div>
+    <div class="p bevel"><h2>Data sources and pipeline</h2><div class="body">
+      <div class="pipe">
+        <div class="n"><b>SOURCES</b>DCIM / BMS (power, CDU, leak, PUE)<br>Rack telemetry via MQTT<br>GPU metrics: DCGM exporters, NIM serving metrics<br>Orchestration events (Kubernetes / fleet manager)<br>Storage data plane (VAST): IOPS, capacity, tenant QoS<br>ERP, billing, contract milestones<br>Vendor portal: tranche ETAs</div>
+        <div class="n"><b>TRANSPORT</b>MQTT brokers per hall → Kafka topics per site<br>Schema registry, per-tenant partitions<br>Sub-second for thermal and power<br>Batch CDC for ERP and CRM</div>
+        <div class="n core"><b>LAKEHOUSE + SEMANTIC LAYER</b>Streaming tables: rack_state, gpu_metrics, power, jobs<br>Curated marts: capacity, utilisation, revenue recognition, contract milestones<br>Semantic layer with lineage; metrics defined once<br>Row-level tenant isolation</div>
+        <div class="n"><b>CONSUMERS</b>This console<br>Finance close and board pack<br>Customer usage portals<br>Agents (read via semantic layer, MCP tools)<br>Auditors: evidence export</div>
+        <div class="n"><b>CONTROLS</b>Identity: workload identity, no static keys<br>Every metric has an owner and a test<br>Immutable audit of agent actions<br>Sovereign region only; egress policy enforced</div>
+      </div>
+    </div></div>
+  </div>`;
+}
+function teleRows(show){return`<div class="telerow head"><span>Rack</span><span>Util</span><span>Inlet °C</span><span>kW</span><span>Flow</span><span>NVL err</span><span>Queue</span></div>`+show.map(r=>{const st=rackState(r,NOW_WEEK);return`<div class="telerow"><span style="color:${st==="live"?"var(--text)":st==="degraded"?"var(--amber)":"var(--red)"}">${r.id}</span><span>${pct(r.util)}</span><span style="color:${r.temp>68?"var(--red)":r.temp>64?"var(--amber)":"inherit"}">${r.temp.toFixed(1)}</span><span>${(r.kw*r.util*0.92).toFixed(0)}</span><span>${r.flow.toFixed(1)}</span><span style="color:${r.nvl>6?"var(--amber)":"inherit"}">${r.nvl}</span><span>${r.q}</span></div>`}).join("")}
+
+function contracts(){
+  const tot=CONTRACTS.reduce((a,c)=>a+c.tcv,0);const m=model();
+  const inv=[["INV-2611","C-004","Acceptance milestone 2","18 Aug 2026",22.4,"paid"],["INV-2618","C-006","Aug usage","31 Aug 2026",1.1,"paid"],["INV-2623","C-001","Sep floor, batch 1 to 3","30 Sep 2026",41.7,"issued"],["INV-2624","C-004","Sep reserved capacity","30 Sep 2026",9.8,"issued"],["INV-2619","C-002","Acceptance batch 3","held",18.4,"held (WF-1038)"],["INV-2601","C-003","Prepayment instalment 2","overdue 34 d",23.0,"overdue"]];
+  return`<h1>Contracts and cash <small>who owes what, when, and what is actually recognised</small></h1>
+  <div class="grid c4">${kpi("Total TCV",usd(tot),"6 contracts","c")}${kpi("Guaranteed (anchor floor)",usd(4900),pct(4900/tot)+" of TCV","g")}${kpi("At risk",usd(CONTRACTS.filter(c=>c.status==="at risk").reduce((a,c)=>a+c.tcv,0)),"LC outstanding","r")}${kpi("Deposits and LCs held",usd(CONTRACTS.reduce((a,c)=>a+c.deposit,0)),"customer deposits on balance sheet","g")}</div>
+  <div class="p bevel" style="margin-top:8px"><h2>Contracts</h2><div class="body"><table><tr><th>ID</th><th>Counterparty</th><th class="num">GPUs</th><th class="num">MW IT</th><th class="num">Years</th><th class="num">TCV</th><th class="num">US$/GPU-h</th><th class="num">Start wk</th><th>Security</th><th>Status</th><th>Notes</th></tr>
+  ${CONTRACTS.map(c=>`<tr><td>${c.id}</td><td>${c.name}</td><td class="num">${fmt(c.gpus)}</td><td class="num">${c.mwIT}</td><td class="num">${c.years}</td><td class="num">${usd(c.tcv)}</td><td class="num">${c.floor.toFixed(2)}</td><td class="num">${c.start+P.slip}</td><td class="small">${c.lc}</td><td><span class="tag ${c.status==="active"?"g":c.status==="at risk"?"r":"a"}">${c.status.toUpperCase()}</span></td><td class="small muted">${c.notes}</td></tr>`).join("")}</table></div></div>
+  <div class="grid c2" style="margin-top:8px">
+    <div class="p bevel"><h2>Invoices and ageing</h2><div class="body"><table><tr><th>Invoice</th><th>Contract</th><th>Item</th><th>Due</th><th class="num">US$M</th><th>State</th></tr>${inv.map(i=>`<tr><td>${i[0]}</td><td>${i[1]}</td><td>${i[2]}</td><td>${i[3]}</td><td class="num">${i[4].toFixed(1)}</td><td><span class="tag ${i[5]==="paid"?"g":i[5]==="issued"?"c":"r"}">${i[5].toUpperCase()}</span></td></tr>`).join("")}</table></div></div>
+    <div class="p bevel"><h2>Recognised vs deferred (next 6 quarters, US$M)</h2><div class="body"><table><tr><th>Quarter</th><th class="num">Recognised</th><th class="num">Deferred in</th><th class="num">Deposits applied</th><th class="num">Backlog remaining</th></tr>${m.rows.slice(0,6).map((r,i)=>{let backlog=tot*(1+P.tcv/100);for(let k=0;k<=i;k++)backlog-=m.rows[k].rev;return`<tr><td>${r.q}</td><td class="num">${fmt(r.rev)}</td><td class="num">${fmt(r.rev*0.18)}</td><td class="num">${fmt(Math.min(r.rev*0.3,i===0?23:i===1?37:0))}</td><td class="num">${fmt(backlog)}</td></tr>`}).join("")}</table><div class="small muted" style="margin-top:6px">Recognition follows acceptance and reserved-capacity months. Deferred = prepayments not yet earned. Backlog = TCV less recognised to date.</div></div></div>
+  </div>`;
+}
+
+function workflows(){
+  return`<h1>Workflows <small>deterministic remediation with human gates; AI steps are advisory</small></h1>
+  <div class="grid c2">${WORKFLOWS.map(w=>{const wait=w.steps.find(s=>s.state==="wait");return`<div class="p bevel"><h2>${w.id} · ${w.name} ${wait?'<span class="tag a">AWAITING APPROVAL</span>':w.steps.some(s=>s.state==="rej")?'<span class="tag r">HALTED</span>':'<span class="tag g">COMPLETE</span>'}</h2><div class="body"><div class="small muted">Trigger: ${w.trigger}</div>
+  <ol class="steps" style="margin-top:6px">${w.steps.map((s,i)=>`<li class="${s.state}${s.k==="ai"?" ai":""}"><span class="n">${s.state==="done"?"■":s.state==="wait"?"▶":s.state==="rej"?"✕":"□"}</span><span>${s.n}</span><span class="tag ${s.k==="auto"?"":s.k==="ai"?"m":"a"}">${s.k.toUpperCase()}</span></li>`).join("")}</ol>
+  ${wait?`<div style="margin-top:6px"><button class="btn" data-wf="${w.id}" data-ok="1">Approve</button> <button class="btn r" data-wf="${w.id}" data-ok="0">Reject</button></div>`:""}</div></div>`}).join("")}</div>
+  <div class="p bevel" style="margin-top:8px"><h2>Design rules</h2><div class="body small">Every workflow is a state machine with explicit steps. Automated steps are idempotent and reversible or they do not exist. AI steps produce a recommendation with a confidence and the evidence it used; they never take a physical, financial or customer-facing action. A human gate sits before any of those. Every transition is written to the audit log with actor, inputs and outputs.</div></div>`;
+}
+
+function agents(){
+  const idle=RACKS.filter(r=>rackState(r,NOW_WEEK)==="live").reduce((a,r)=>a+r.gpus*(1-r.util),0);
+  return`<h1>Agents / dogfood <small>internal workloads on unutilised capacity, pre-emptible</small></h1>
+  <div class="grid c4">${kpi("Idle GPUs right now",fmt(idle),"on live racks, before pre-emption","a")}${kpi("Internal pods",AGENTS.reduce((a,x)=>a+x.pods,0),AGENTS.filter(a=>a.st==="running").length+" agents running","c")}${kpi("GPU-hours this month",fmt(AGENTS.reduce((a,x)=>a+x.gpuH,0)),"all pre-emptible, zero contracted impact")}${kpi("Resale revenue this week","US$92k","inference pool at market rate","g")}</div>
+  <div class="p bevel" style="margin-top:8px"><h2>Agent fleet</h2><div class="body"><table><tr><th>Agent</th><th class="num">Pods</th><th class="num">GPU-h / mth</th><th>Value</th><th>Guardrails</th><th>State</th></tr>${AGENTS.map(a=>`<tr><td><b>${a.name}</b><br><span class="small muted">${a.note}</span></td><td class="num">${a.pods}</td><td class="num">${fmt(a.gpuH)}</td><td>${a.save}</td><td class="small">${a.guard}</td><td><span class="tag ${a.st==="running"?"g":""}">${a.st.toUpperCase()}</span></td></tr>`).join("")}</table></div></div>
+  <div class="grid c2" style="margin-top:8px">
+    <div class="p bevel"><h2>Scheduling policy</h2><div class="body small">Internal pods run in a low-priority pool with a 90-second pre-emption budget. Contracted tenants always win. The inference resale pool is metered and billed like any tenant, and its upside is reported in the vendor split. Clean-room jobs run in attested, air-gapped partitions with no egress; results leave only through an approved export step. Every agent reads business data through the semantic layer, so the numbers in a board pack are the same numbers finance closes on.</div></div>
+    <div class="p bevel"><h2>Recent agent actions (audit excerpt)</h2><div class="mono body">${["09:14 board-pack  read metric revenue_recognised (lineage 7f3a) → draft v3 flagged +6.2% vs v2","09:20 irr-agent   reran site model after WF-1029 slip → SY3 IRR 21.4% → 19.8%","09:31 pm-agent    vendor portal: T-07 ETA +4 wk → opened WF-1029","09:44 resale-pool pre-empted 96 GPUs for C-004 burst; SLA met (71 s)","10:02 cleanroom   job cr-2291 attested, egress denied ×2, completed","10:15 legal-docs  idle; last run 22 Sep, CLO approval pending"].join("\n")}</div></div>
+  </div>`;
+}
+
+function ml(){
+  const live=RACKS.filter(r=>["live","degraded","fault"].includes(rackState(r,NOW_WEEK)));
+  const top=[...live].sort((a,b)=>b.risk-a.risk).slice(0,12);
+  const anom=live.filter(r=>r.util<0.55||r.nvl>5).slice(0,8);
+  return`<h1>ML <small>explainable scores; recommendations only</small></h1>
+  <div class="grid c3">
+    <div class="p bevel"><h2>Predictive maintenance · top risk racks (90 d)</h2><div class="body"><table><tr><th>Rack</th><th>Risk</th><th>Drivers</th></tr>${top.map(r=>`<tr><td>${r.id}</td><td><span class="risk"><i style="width:${r.risk/0.15*100}%"></i></span>${pct(r.risk)}</td><td class="small muted">${r.temp>64?"inlet trend +":""} ${r.nvl>4?"NVLink errs ":""} ${r.flow<30?"coolant flow low ":""}${r.temp<=64&&r.nvl<=4&&r.flow>=30?"age, vendor batch":""}</td></tr>`).join("")}</table><div class="small muted" style="margin-top:6px">Gradient-boosted survival model on thermal, NVLink, coolant and firmware history. SHAP drivers shown. Output feeds WF-1041 style workflows; no automatic action.</div></div></div>
+    <div class="p bevel"><h2>Utilisation anomalies</h2><div class="body"><table><tr><th>Rack</th><th class="num">Util</th><th class="num">NVL</th><th>Read</th></tr>${anom.map(r=>`<tr><td>${r.id}</td><td class="num">${pct(r.util)}</td><td class="num">${r.nvl}</td><td class="small muted">${r.util<0.55?"tenant idle; offer to internal pool":"fabric errors; check cabling batch"}</td></tr>`).join("")}${anom.length?"":'<tr><td colspan="4" class="muted">none</td></tr>'}</table><div class="small muted" style="margin-top:6px">Seasonal baseline per tenant; z-score on residuals; isolation forest on fabric metrics.</div></div></div>
+    <div class="p bevel"><h2>Demand forecast (GPU-hours / week, spot + burst)</h2><div class="body"><canvas id="fc" width="420" height="220"></canvas><div class="small muted" style="margin-top:6px">Model: weekly demand from tenant job queues, calendar and pipeline; shaded band is P10 to P90. Used to price the resale block in WF-1035.</div></div></div>
+  </div>`;
+}
+
+// ---------- BIND ----------
+function bind(){
+  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{SITE=b.dataset.s;SELRACK=null;render()});
+  document.querySelectorAll(".rk").forEach(b=>b.onclick=()=>{SELRACK=b.dataset.r;log("inspect "+SELRACK);render()});
+  document.querySelectorAll("[data-wf]").forEach(b=>b.onclick=()=>wfAct(b.dataset.wf,b.dataset.ok==="1"));
+  document.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{log(b.dataset.act+" on "+b.dataset.r,"warn");alert(b.dataset.act+" requested on "+b.dataset.r,"warn")});
+  document.querySelectorAll("input[data-p]").forEach(i=>i.oninput=()=>{P[i.dataset.p]=Number(i.value);const v=document.getElementById("v-"+i.dataset.p);if(v)v.textContent=i.dataset.p==="floor"||i.dataset.p==="market"?"US$"+Number(i.value).toFixed(2):i.value+(i.dataset.p==="slip"?" wk":"%");
+    // only redraw outputs
+    if(TAB==="whatif"){const m=document.getElementById("main");const keep=m.querySelector(".grid").children[0];const html=whatif();const tmp=document.createElement("div");tmp.innerHTML=html;const fresh=tmp.querySelector(".grid").children[1];m.querySelector(".grid").children[1].replaceWith(fresh);drawW()}});
+  const rs=document.getElementById("reset");if(rs)rs.onclick=()=>{Object.assign(P,{slip:0,capex:0,opex:0,tcv:0,floor:2.33,split:50,util:78,market:4.2});log("what-if levers reset");render()};
+  if(TAB==="command"){drawMap();drawCmd()}
+  if(TAB==="whatif")drawW();
+  if(TAB==="ml")drawFc();
+  if(TAB==="sites"&&SELRACK)drawSpark();
+  document.getElementById("h-week").textContent=NOW_WEEK;
+}
+
+// ---------- CANVAS ----------
+function ctx(id){const c=document.getElementById(id);if(!c)return null;const g=c.getContext("2d");g.clearRect(0,0,c.width,c.height);return g}
+function axes(g,W,H,pad){g.strokeStyle="#1f3a24";g.lineWidth=1;g.beginPath();g.moveTo(pad,8);g.lineTo(pad,H-pad);g.lineTo(W-8,H-pad);g.stroke()}
+function drawCmd(){const g=ctx("cmdchart");if(!g)return;const W=640,H=300,pad=40;const m=model();axes(g,W,H,pad);const n=m.rows.length;const mx=Math.max(...m.rows.map(r=>Math.max(r.rev,r.opex+r.capex)))*1.1;const cx=Math.max(...m.rows.map(r=>Math.abs(r.cash)))*1.1;const bw=(W-pad-16)/n;
+  m.rows.forEach((r,i)=>{const x=pad+i*bw;const h=v=>(H-pad)-v/mx*(H-pad-16);g.fillStyle="#3fbf35";g.fillRect(x+3,h(r.rev),bw*0.35,(H-pad)-h(r.rev));g.fillStyle="#ffb347";g.fillRect(x+3+bw*0.4,h(r.opex),bw*0.25,(H-pad)-h(r.opex));g.fillStyle="#ff4a4a";g.fillRect(x+3+bw*0.4,h(r.opex+r.capex),bw*0.25,h(r.opex)-h(r.opex+r.capex));g.fillStyle="#6f8f6a";g.font="9px monospace";if(i%2===0)g.fillText(r.q,x+2,H-pad+12)});
+  g.strokeStyle="#5ce1ff";g.lineWidth=2;g.beginPath();m.rows.forEach((r,i)=>{const x=pad+i*bw+bw/2;const y=(H-pad)/2-(r.cash/cx)*((H-pad)/2-8);i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();g.fillStyle="#5ce1ff";g.fillText("cash "+usd(m.rows.at(-1).cash),W-120,16);g.fillStyle="#6f8f6a";g.fillText(usd(mx),pad+4,14)}
+function drawW(){const g=ctx("wchart");if(!g)return;const W=900,H=320,pad=44;const m=model();axes(g,W,H,pad);const n=m.rows.length;const mx=Math.max(...m.rows.map(r=>r.rev))*1.15||1;const bw=(W-pad-16)/n;const cmax=Math.max(CASH0,...m.rows.map(r=>Math.abs(r.cash)))*1.1;
+  m.rows.forEach((r,i)=>{const x=pad+i*bw;const h=v=>(H-pad)-v/mx*(H-pad-16);let y0=H-pad;for(const [k,c] of [["revFloor","#2f7a34"],["revOther","#3fbf35"],["revUp","#9dff92"]]){const y=h(r[k]);g.fillStyle=c;g.fillRect(x+4,y0-((H-pad)-y),bw*0.55,(H-pad)-y);y0-=((H-pad)-y)}g.fillStyle="#6f8f6a";g.font="10px monospace";g.fillText(r.q,x+2,H-pad+12)});
+  g.strokeStyle="#5ce1ff";g.lineWidth=2;g.beginPath();m.rows.forEach((r,i)=>{const x=pad+i*bw+bw*0.3;const y=(H-pad)-((r.cash+cmax)/(2*cmax))*(H-pad-16);i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();
+  g.strokeStyle="#ff4a4a";g.setLineDash([4,4]);g.beginPath();const yz=(H-pad)-(cmax/(2*cmax))*(H-pad-16);g.moveTo(pad,yz);g.lineTo(W-8,yz);g.stroke();g.setLineDash([]);
+  g.fillStyle="#6f8f6a";g.fillText("bars: floor / other / upside (US$M, left)   line: cash balance (cyan, right; dashed = zero)",pad,14);g.fillText(usd(mx),pad+2,28);
+  if(m.be){const i=m.rows.findIndex(r=>r.q===m.be);g.fillStyle="#ffb347";g.fillText("break-even",pad+i*bw,H-pad-4)}}
+function drawFc(){const g=ctx("fc");if(!g)return;const W=420,H=220,pad=30;axes(g,W,H,pad);const r2=mulberry32(7);let base=180;const pts=[];for(let i=0;i<26;i++){base=base*1.03+ (r2()-0.5)*30;pts.push(base)}const mx=Math.max(...pts)*1.5;const X=i=>pad+i/25*(W-pad-10),Y=v=>(H-pad)-v/mx*(H-pad-10);
+  g.fillStyle="rgba(92,225,255,.15)";g.beginPath();pts.forEach((v,i)=>{const y=Y(v*1.25);i?g.lineTo(X(i),y):g.moveTo(X(i),y)});for(let i=25;i>=0;i--)g.lineTo(X(i),Y(pts[i]*0.8));g.closePath();g.fill();
+  g.strokeStyle="#5ce1ff";g.lineWidth=2;g.beginPath();pts.forEach((v,i)=>{i?g.lineTo(X(i),Y(v)):g.moveTo(X(i),Y(v))});g.stroke();g.strokeStyle="#ff4a4a";g.setLineDash([3,3]);g.beginPath();g.moveTo(X(12),10);g.lineTo(X(12),H-pad);g.stroke();g.setLineDash([]);g.fillStyle="#6f8f6a";g.font="10px monospace";g.fillText("now",X(12)+3,20);g.fillText("k GPU-h/wk",pad+2,12)}
+function drawSpark(){const g=ctx("spark");if(!g)return;const r=RACKS.find(x=>x.id===SELRACK);const r2=mulberry32(Math.floor(r.seed*1e6));g.strokeStyle="#3fbf35";g.beginPath();for(let i=0;i<60;i++){const v=r.util+(r2()-0.5)*0.2;const y=40-v*36;i?g.lineTo(i*4,y):g.moveTo(i*4,y)}g.stroke()}
+function drawMap(){const g=ctx("map");if(!g)return;const W=640,H=300;g.strokeStyle="#14261a";for(let x=0;x<W;x+=32){g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke()}for(let y=0;y<H;y+=32){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke()}
+  // crude east-coast outline
+  g.strokeStyle="#2f5a37";g.lineWidth=2;g.beginPath();[[0.15,0.05],[0.35,0.03],[0.55,0.1],[0.68,0.25],[0.78,0.45],[0.76,0.62],[0.62,0.8],[0.45,0.9],[0.3,0.86],[0.15,0.7],[0.08,0.4]].forEach(([x,y],i)=>i?g.lineTo(x*W,y*H):g.moveTo(x*W,y*H));g.stroke();
+  for(const s of SITES){const rs=RACKS.filter(r=>r.site===s.id);const deg=rs.filter(r=>["degraded","fault"].includes(rackState(r,NOW_WEEK))).length;const live=rs.filter(r=>rackState(r,NOW_WEEK)==="live").length;const x=s.x*W,y=s.y*H;g.fillStyle=deg>3?"#ffb347":"#6cff5c";g.beginPath();g.arc(x,y,5,0,7);g.fill();g.strokeStyle=g.fillStyle;g.globalAlpha=.4;g.beginPath();g.arc(x,y,10+((Date.now()/60)%10),0,7);g.stroke();g.globalAlpha=1;g.fillStyle="#b9d6b3";g.font="11px monospace";g.fillText(s.id+" · "+live+" live",x+12,y+4)}
+  g.fillStyle="#6f8f6a";g.font="10px monospace";g.fillText("sovereign region: AU east · NZ site planned",8,H-8)}
+function drawRadar(){const c=document.getElementById("radar");if(!c)return;const g=c.getContext("2d");const W=c.width,H=c.height,cx=W/2,cy=H/2,R0=62;g.clearRect(0,0,W,H);g.strokeStyle="#1f3a24";for(const r of [20,40,62]){g.beginPath();g.arc(cx,cy,r,0,7);g.stroke()}g.beginPath();g.moveTo(cx-R0,cy);g.lineTo(cx+R0,cy);g.moveTo(cx,cy-R0);g.lineTo(cx,cy+R0);g.stroke();
+  const a=(Date.now()/1200)%(Math.PI*2);const gr=g.createConicGradient?g.createConicGradient(a,cx,cy):null;if(gr){gr.addColorStop(0,"rgba(108,255,92,.35)");gr.addColorStop(.15,"rgba(108,255,92,0)");gr.addColorStop(1,"rgba(108,255,92,0)");g.fillStyle=gr;g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,R0,0,7);g.fill()}
+  for(const s of SITES){const x=cx+(s.x-0.5)*R0*1.6,y=cy+(s.y-0.5)*R0*1.6;g.fillStyle="#6cff5c";g.beginPath();g.arc(x,y,2.5,0,7);g.fill()}
+  for(const w of WORKFLOWS){if(w.steps.some(s=>s.state==="wait")){const x=cx+Math.cos(w.id.charCodeAt(5))*40,y=cy+Math.sin(w.id.charCodeAt(5)*3)*40;g.fillStyle="#ffb347";g.fillRect(x-2,y-2,4,4)}}}
+
+// ---------- LIVE TICK ----------
+let tick=0;
+setInterval(()=>{tick++;
+  const r2=mulberry32(tick*7919);
+  for(const r of RACKS){if(rackState(r,NOW_WEEK)==="planned")continue;r.util=Math.min(1,Math.max(0.2,r.util+(r2()-0.5)*0.04));r.temp=Math.min(74,Math.max(48,r.temp+(r2()-0.5)*0.6+(r.risk>0.09?0.05:0)));r.flow=Math.max(20,r.flow+(r2()-0.5)*0.3);if(r2()<0.02)r.nvl=Math.max(0,r.nvl+(r2()<0.5?-1:1));r.q=Math.max(0,r.q+Math.round((r2()-0.5)*4))}
+  if(tick%12===0){const r=RACKS.filter(r=>rackState(r,NOW_WEEK)==="live")[Math.floor(r2()*300)];if(r){if(r.temp>66){alert(r.id+" inlet "+r.temp.toFixed(1)+"°C, throttling","crit")}else if(r.nvl>7)alert(r.id+" NVLink error rate "+r.nvl+"/h","warn");else alert("heartbeat: "+r.id+" nominal","ok")}}
+  document.getElementById("h-clock").textContent=new Date().toLocaleTimeString("en-AU",{hour12:false,timeZone:"Australia/Sydney"});
+  document.getElementById("h-tel").textContent=fmt(RACKS.filter(r=>["live","degraded"].includes(rackState(r,NOW_WEEK))).length*72)+" GPU streams";
+  if(TAB==="telemetry"){const live=RACKS.filter(r=>["live","degraded","fault","maintenance"].includes(rackState(r,NOW_WEEK)));const show=live.filter((r,i)=>i%Math.ceil(live.length/28)===0).slice(0,28);const tb=document.getElementById("telebody");if(tb)tb.innerHTML=teleRows(show)}
+  if(TAB==="command"&&tick%2===0)drawMap();
+  drawRadar();
+},1000);
+
+// ---------- KEYS ----------
+document.addEventListener("keydown",e=>{const m=/^F(\d)$/.exec(e.key);if(m&&TABS[m[1]-1]){e.preventDefault();TAB=TABS[m[1]-1][0];render()}});
+
+// ---------- BOOT ----------
+log("console online; seed 20261001; "+RACKS.length+" racks modelled");
+alert("C-003 letter of credit overdue 34 days (WF-1022)","crit");
+alert("T-07 vendor tranche ETA +4 weeks (WF-1029)","warn");
+alert("M3-Hall3B-041 thermal excursion, throttled (WF-1041)","warn");
+alert("C-002 acceptance batch 3 failed bandwidth test (WF-1038)","warn");
+render();
+})();
+</script>
+</body>
+</html>
